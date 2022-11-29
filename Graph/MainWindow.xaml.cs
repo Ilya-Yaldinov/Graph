@@ -58,6 +58,11 @@ namespace Graph
                                                          (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
         }
 
+        private void heightBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         private void clearBtn_Click(object sender, RoutedEventArgs e)
         {
             movePoint = null;
@@ -231,11 +236,6 @@ namespace Graph
             grid.CaptureMouse();
         }
 
-        private void widthBtn_Click(object sender, RoutedEventArgs e)
-        {
-            string firstNode = GetHighest();
-        }
-
         private void GetNodesQueue(string firstNode)
         {
             
@@ -270,7 +270,7 @@ namespace Graph
             }
             return numOfNode;
         }
-       
+
         /*private void HighlightElements()
         {
             foreach (var grid in connections.Keys)

@@ -15,6 +15,8 @@
             <RowDefinition Height="1*"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"></ColumnDefinition>
@@ -22,12 +24,11 @@
         </Grid.ColumnDefinitions>
 
         <Canvas Background="#DEF5E5" x:Name="MainRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="7" MouseLeftButtonDown="AddNodeToCanvas"></Canvas>
-        <Button Grid.Row="0" 
-                Margin="15,30,0,0"
+        <Button Grid.Row="0"
                 x:Name="createBtn" 
                 Content="Create Node" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
                 Width="120" Height="40" 
                 Background="#9ED5C5" 
                 FontFamily="Yu Gothic UI Semibold" 
@@ -36,11 +37,10 @@
                 BorderThickness="0"
                 Click="createBtn_Click"/>
         <Button Grid.Row="1" 
-                Margin="15,30,0,0"
                 x:Name="connectBtn" 
                 Content="Connect" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
                 Width="120" Height="40" 
                 Background="#9ED5C5" 
                 FontFamily="Yu Gothic UI Semibold" 
@@ -49,11 +49,10 @@
                 BorderThickness="0"
                 Click="connectBtn_Click"/>
         <Button Grid.Row="2" 
-                Margin="15,30,0,0"
                 x:Name="deleteBtn" 
                 Content="Delete" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
                 Width="120" Height="40" 
                 Background="#9ED5C5" 
                 FontFamily="Yu Gothic UI Semibold" 
@@ -62,11 +61,10 @@
                 BorderThickness="0" 
                 Click="deleteBtn_Click"/>
         <Button Grid.Row="3" 
-                Margin="15,30,0,0"
                 x:Name="widthBtn" 
                 Content="Width" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
                 Width="120" Height="40" 
                 Background="#9ED5C5" 
                 FontFamily="Yu Gothic UI Semibold" 
@@ -74,12 +72,22 @@
                 Foreground="White" 
                 BorderThickness="0"
                 Click="widthBtn_Click"/>
-        <Button Grid.Row="6" 
-                Margin="15,30,0,0"
+        <Button Grid.Row="4" 
+                x:Name="heightBtn" 
+                Content="Height" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16" 
+                Foreground="White" 
+                BorderThickness="0" Click="heightBtn_Click"/>
+        <Button Grid.Row="8" 
                 x:Name="clearBtn" 
                 Content="Clear" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Top" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
                 Width="120" Height="40" 
                 Background="#9ED5C5" 
                 FontFamily="Yu Gothic UI Semibold" 
@@ -88,5 +96,5 @@
                 BorderThickness="0"
                 Click="clearBtn_Click"/>
     </Grid>
-    
+
 </Window>
