@@ -11,6 +11,7 @@ namespace Graph
         public Point end;
         public Grid? gridFirst;
         public Grid? gridLast;
+
         private static ConnectionFigures? instance;
 
         private ConnectionFigures() { }
@@ -28,6 +29,7 @@ namespace Graph
             end = new Point();
             gridFirst = null;
             gridLast = null;
+            instance = null;
         }
     }
 }

@@ -17,6 +17,7 @@
             <RowDefinition Height="1*"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"></ColumnDefinition>
@@ -83,7 +84,18 @@
                 FontSize="16" 
                 Foreground="White" 
                 BorderThickness="0" Click="heightBtn_Click"/>
-        <Button Grid.Row="8" 
+        <Button Grid.Row="5" 
+                x:Name="shortestPathBtn" 
+                Content="Shortest Path" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Bottom" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16" 
+                Foreground="White" 
+                BorderThickness="0" Margin="0,0,0,15" Click="shortestPathBtn_Click"/>
+        <Button Grid.Row="9" 
                 x:Name="clearBtn" 
                 Content="Clear" 
                 HorizontalAlignment="Center" 

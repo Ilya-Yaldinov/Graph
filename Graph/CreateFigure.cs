@@ -33,8 +33,6 @@ namespace Graph
             Ellipse ellipse = new Ellipse();
             ellipse.Width = 50;
             ellipse.Height = 50;
-            /*ellipse.StrokeThickness = 5;
-            ellipse.Stroke = Brushes.Gray;*/
             ellipse.Fill = Brushes.Orange;
 
             return ellipse;
@@ -54,7 +52,7 @@ namespace Graph
         public Line CreateLine()
         {
             Line line = new Line();
-            line.Stroke = Brushes.Violet;
+            line.Stroke = (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
             line.StrokeThickness = 5;
             line.StrokeStartLineCap = PenLineCap.Round;
             line.StrokeEndLineCap = PenLineCap.Round;
