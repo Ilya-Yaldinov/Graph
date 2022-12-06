@@ -6,7 +6,6 @@ namespace Graph
 {
     public class ConnectionFigures
     {
-        public bool connection;
         public Point start;
         public Point end;
         public Grid? gridFirst;
@@ -24,7 +23,6 @@ namespace Graph
 
         public void Clear()
         {
-            connection = false;
             start = new Point();
             end = new Point();
             gridFirst = null;
