@@ -25,7 +25,7 @@
             <ColumnDefinition Width="15*" ></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Canvas Background="#DEF5E5" x:Name="MainRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="7" MouseLeftButtonDown="AddNodeToCanvas"></Canvas>
+        <Canvas Background="#DEF5E5" x:Name="MainRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="11" MouseLeftButtonDown="AddGridToCanvas"></Canvas>
         <Button Grid.Row="0"
                 x:Name="createBtn" 
                 Content="Create Node" 
@@ -84,19 +84,44 @@
                 FontFamily="Yu Gothic UI Semibold" 
                 FontSize="16" 
                 Foreground="White" 
-                BorderThickness="0" Click="heightBtn_Click"/>
+                BorderThickness="0" 
+                Click="heightBtn_Click"/>
         <Button Grid.Row="5" 
                 x:Name="shortestPathBtn" 
                 Content="Shortest Path" 
                 HorizontalAlignment="Center" 
-                VerticalAlignment="Bottom" 
+                VerticalAlignment="Center" 
                 Width="120" Height="40" 
                 Background="#9ED5C5" 
                 FontFamily="Yu Gothic UI Semibold" 
                 FontSize="16" 
                 Foreground="White" 
-                BorderThickness="0" Margin="0,0,0,15" Click="shortestPathBtn_Click"/>
-        <Button Grid.Row="10" 
+                BorderThickness="0" 
+                Click="shortestPathBtn_Click"/>
+        <Button Grid.Row="6" 
+                x:Name="openFileBtn" 
+                Content="Open File" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16" 
+                Foreground="White" 
+                BorderThickness="0" 
+                Click="openFileBtn_Click" />
+        <Button Grid.Row="7" 
+                x:Name="saveToFileBtn" 
+                Content="Save To File" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16" 
+                Foreground="White" 
+                BorderThickness="0" Click="saveToFileBtn_Click" />
+        <Button Grid.Row="8" 
                 x:Name="clearBtn" 
                 Content="Clear" 
                 HorizontalAlignment="Center" 
@@ -106,7 +131,7 @@
                 FontFamily="Yu Gothic UI Semibold" 
                 FontSize="16" 
                 Foreground="White" 
-                BorderThickness="0"
+                BorderThickness="0" 
                 Click="clearBtn_Click"/>
     </Grid>
 

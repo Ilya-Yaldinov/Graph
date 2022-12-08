@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -95,6 +96,153 @@ namespace Graph
             if (!isShortestPathBtnOn) GetBackAllElement();
         }
 
+        private void openFileBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ReadFromFile();
+        }
+
+        private void ReadFromFile()
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+            openFile.Filter = "Text documents (.csv)|*.csv";
+            Nullable<bool> result = openFile.ShowDialog();
+
+            if (result == true)
+            {
+                string fileName = openFile.FileName;
+                InfoFromFileToCanvas(fileName);
+                RedrawCanvas();
+            }
+        }
+
+        private void InfoFromFileToCanvas(string fileName)
+        {
+            string[] file = File.ReadAllLines(fileName);
+            adjacencyMatrix.Clear();
+            foreach(string line in file)
+            {
+                List<string> elems = line.Split('-')
+                    .Where(x => !String.IsNullOrWhiteSpace(x))
+                    .ToList();
+                List<int> row = elems[0].Split(';')
+                    .Where(x => !String.IsNullOrWhiteSpace(x))
+                    .Select(x => Convert.ToInt32(x))
+                    .ToList();
+                adjacencyMatrix.Add(row);
+                List<double> positions = elems[1].Split(';')
+                    .Where(x => !String.IsNullOrWhiteSpace(x))
+                    .Select(x => Convert.ToDouble(x))
+                    .ToList();
+                AddGridToCanvasFromFile(positions);
+            }
+            GetConnectionFromFile();
+        }
+
+        private void GetConnectionFromFile()
+        {
+            for(int i = 0; i < adjacencyMatrix.Count; i++)
+            {
+                for(int j = 0; j < adjacencyMatrix[i].Count; j++)
+                {
+                    if (adjacencyMatrix[i][j] == 1)
+                    {
+                        Grid grid1 = (Grid)GetEllipseFromIndex(i).Parent;
+                        Grid grid2 = (Grid)GetEllipseFromIndex(j).Parent;
+                        CreateFigure createFigure = new CreateFigure();
+                        Line line = createFigure.CreateLine();
+                        line.X1 = Canvas.GetLeft(grid1) + 25;
+                        line.Y1 = Canvas.GetTop(grid1) + 25;
+                        line.X2 = Canvas.GetLeft(grid2) + 25;
+                        line.Y2 = Canvas.GetTop(grid2) + 25;
+
+                        foreach (Line lineStart in connections[grid1])
+                            foreach (Line lineEnd in connections[grid2])
+                                if (lineStart == lineEnd) continue;
+
+                        connections[grid1].Add(line);
+                        connections[grid2].Add(line);
+                        MainRoot.Children.Add(line);
+                        line.MouseRightButtonDown += Delete;
+                    }
+                }
+            }
+            RedrawCanvas();
+        }
+
+        private void AddGridToCanvasFromFile(List<double> positions)
+        {
+            Grid grid = createFigure.CreateGrid();
+            connections.Add(grid, new List<Line>());
+            MainRoot.Children.Add(grid);
+            Canvas.SetLeft(grid, positions[0]);
+            Canvas.SetTop(grid, positions[1]);
+
+            grid.MouseLeftButtonDown += FigureMouseDown;
+            grid.MouseRightButtonDown += Delete;
+            grid.MouseMove += FigureMouseMove;
+            grid.MouseLeftButtonUp += FigureMouseUp;
+            grid.MouseRightButtonDown += Connection;
+            grid.MouseRightButtonDown += FindShortestPath;
+        }
+
+        private void AddGridToCanvas(object sender, MouseButtonEventArgs e)
+        {
+            if (isCreateBtnOn != true) return;
+
+            Point point = e.GetPosition(MainRoot);
+            Grid grid = createFigure.CreateGrid();
+            connections.Add(grid, new List<Line>());
+            MainRoot.Children.Add(grid);
+            Canvas.SetLeft(grid, point.X - 25);
+            Canvas.SetTop(grid, point.Y - 25);
+
+            GetAdjacenciesMatrix();
+
+            grid.MouseLeftButtonDown += FigureMouseDown;
+            grid.MouseRightButtonDown += Delete;
+            grid.MouseMove += FigureMouseMove;
+            grid.MouseLeftButtonUp += FigureMouseUp;
+            grid.MouseRightButtonDown += Connection;
+            grid.MouseRightButtonDown += FindShortestPath;
+        }
+
+        private void saveToFileBtn_Click(object sender, RoutedEventArgs e)
+        {
+            SaveToNewFile();
+        }
+
+        private void SaveToNewFile()
+        {
+            SaveFileDialog saveFile = new SaveFileDialog();
+            saveFile.FileName = "Graphs";
+            saveFile.DefaultExt = ".csv";
+            saveFile.Filter = "Text documents (.csv)|*.csv";
+            Nullable<bool> result = saveFile.ShowDialog();
+
+            if (result == true)
+            {
+                string filename = saveFile.FileName;
+                StreamWriter sw = new StreamWriter(filename);
+                int count = 0;
+
+                foreach (List<int> row in adjacencyMatrix)
+                {
+                    row.ForEach(x => sw.Write($"{x};"));
+                    sw.Write($"---;{GetPositionOfGridToString(count++)}");
+                    sw.WriteLine();
+                }
+                sw.Close();
+            }
+        }
+
+        private string GetPositionOfGridToString(int count)
+        {
+            Grid grid = (Grid)GetEllipseFromIndex(count).Parent;
+            double posX = Canvas.GetLeft(grid);
+            double posY = Canvas.GetTop(grid);
+            return $"{Math.Round(posX,2)};{Math.Round(posY,2)}";
+        }
+
         private void clearBtn_Click(object sender, RoutedEventArgs e)
         {
             movePoint = null;
@@ -179,6 +327,7 @@ namespace Graph
                     connectionFigures.Clear();
                     return;
                 }
+
                 foreach (Line lineStart in connections[connectionFigures.gridFirst])
                     foreach (Line lineEnd in connections[connectionFigures.gridLast])
                         if (lineStart == lineEnd)
@@ -218,27 +367,6 @@ namespace Graph
                 }
                 MainRoot.Children.Add(keyValuePair.Key);
             }
-        }
-
-        private void AddNodeToCanvas(object sender, MouseButtonEventArgs e)
-        {
-            if (isCreateBtnOn != true) return;
-
-            Point point = e.GetPosition(MainRoot);
-            Grid grid = createFigure.CreateGrid();
-            connections.Add(grid, new List<Line>());
-            MainRoot.Children.Add(grid);
-            Canvas.SetLeft(grid, point.X - 25);
-            Canvas.SetTop(grid, point.Y - 25);
-
-            GetAdjacenciesMatrix();
-
-            grid.MouseLeftButtonDown += FigureMouseDown;
-            grid.MouseRightButtonDown += Delete;
-            grid.MouseMove += FigureMouseMove;
-            grid.MouseLeftButtonUp += FigureMouseUp;
-            grid.MouseRightButtonDown += Connection;
-            grid.MouseRightButtonDown += FindShortestPath;
         }
 
         private void Delete(object sender, MouseButtonEventArgs e)
@@ -421,11 +549,11 @@ namespace Graph
                     {
                         req = edge.begin;
                         await Task.Delay(1000);
-                        HighlightPath(GetGridFromIndex(edge.end));
+                        HighlightPath(GetEllipseFromIndex(edge.end));
                     }
                 }
                 await Task.Delay(1000);
-                HighlightPath(GetGridFromIndex(req));
+                HighlightPath(GetEllipseFromIndex(req));
                 pathBetweenGrid.Clear();
             }
         }
@@ -441,7 +569,7 @@ namespace Graph
         {
             for(int i = 0; i < nodes.Count; i++)
             {
-                Ellipse ellipse = GetGridFromIndex(i);
+                Ellipse ellipse = GetEllipseFromIndex(i);
                 if (nodes[i] == 1)
                 {
                     ellipse.Fill = Brushes.Gray;
@@ -455,7 +583,7 @@ namespace Graph
             }
         }
 
-        private Ellipse GetGridFromIndex(int node)
+        private Ellipse GetEllipseFromIndex(int node)
         {
             Ellipse ellipse = new Ellipse();
             int count = 0;
