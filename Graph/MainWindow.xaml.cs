@@ -30,8 +30,8 @@ namespace Graph
     public partial class MainWindow : Window
     {
         private CreateFigure createFigure = new CreateFigure();
-        private Dictionary<Grid, List<Polyline>> connections = new Dictionary<Grid, List<Polyline>>();
-        private Dictionary<Polyline, Label> pathCosts = new Dictionary<Polyline, Label>();
+        private Dictionary<Grid, List<ArrowLine>> connections = new Dictionary<Grid, List<ArrowLine>>();
+        private Dictionary<ArrowLine, Label> pathCosts = new Dictionary<ArrowLine, Label>();
         public static List<List<int>> adjacencyMatrix = new List<List<int>>();
         private Point? movePoint;
         private List<string> logger = new List<string>();
@@ -48,18 +48,6 @@ namespace Graph
         public MainWindow()
         {
             InitializeComponent();
-            ArrowLine arrowLine = new();
-            arrowLine.Stroke = Brushes.Black;
-            arrowLine.StrokeThickness = 2;
-            arrowLine.X1= 20;
-            arrowLine.Y1= 30;
-            arrowLine.X2= 80;
-            arrowLine.Y2= 100;
-            arrowLine.ArrowLength = 10;
-            arrowLine.ArrowAngle = 45;
-            arrowLine.ArrowEnds = ArrowEnds.End;
-
-            MainRoot.Children.Add(arrowLine);
         }
 
         #region All Buttons Click
@@ -159,43 +147,21 @@ namespace Graph
             Canvas.SetLeft(grid, point.X);
             Canvas.SetTop(grid, point.Y);
 
-            foreach (Polyline line in connections[grid])
+            foreach (ArrowLine line in connections[grid])
             {
-                double line1 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.Points[0].X, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Points[0].Y, 2));
-                double line2 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.Points[1].X, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Points[1].Y, 2));
+                double line1 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.X1, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Y1, 2));
+                double line2 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.X2, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Y2, 2));
 
                 Label tmp = pathCosts[line];
+
                 Point mdl = new Point();
+                mdl.X = (line.X1 + line.X2) / 2;
+                mdl.Y = (line.Y1 + line.Y2) / 2;
 
                 if (line1 < line2)
                 {
-                    Point pointT = new Point();
-                    pointT.X = point.X + grid.ActualHeight / 2;
-                    pointT.Y = point.Y + grid.ActualHeight / 2;
-                    line.Points[0] = pointT;
-
-                    pointT.X = (line.Points[0].X + line.Points[1].X) / 2;
-                    pointT.Y = (line.Points[0].Y + line.Points[1].Y) / 2;
-
-                    mdl.X = pointT.X;
-                    mdl.Y = pointT.Y;
-
-                    if (line.Points.Count > 2)
-                    {
-                        line.Points[2] = pointT;
-
-                        pointT.X = line.Points[2].X - 10;
-                        pointT.Y = line.Points[2].Y - 10;
-                        line.Points[3] = pointT;
-
-                        pointT.X = line.Points[2].X - 10;
-                        pointT.Y = line.Points[2].Y + 10;
-                        line.Points[4] = pointT;
-
-                        pointT.X = line.Points[2].X;
-                        pointT.Y = line.Points[2].Y;
-                        line.Points[5] = pointT;
-                    }
+                    line.X1 = point.X + grid.ActualHeight / 2 - 10;
+                    line.Y1 = point.Y + grid.ActualHeight / 2;
 
                     //pathCosts.Remove(line);
                     //tmp.Margin = new System.Windows.Thickness(pointT.X - 10, pointT.Y - 20, 0, 0);
@@ -204,40 +170,15 @@ namespace Graph
                 }
                 else
                 {
-                    Point pointT = new Point();
-                    pointT.X = point.X + grid.ActualHeight / 2;
-                    pointT.Y = point.Y + grid.ActualHeight / 2;
-                    line.Points[1] = pointT;
-
-                    pointT.X = (line.Points[0].X + line.Points[1].X) / 2;
-                    pointT.Y = (line.Points[0].Y + line.Points[1].Y) / 2;
-
-                    mdl.X = pointT.X;
-                    mdl.Y = pointT.Y;
-
-                    if (line.Points.Count > 2)
-                    {
-                        line.Points[2] = pointT;
-
-                        pointT.X = line.Points[2].X - 10;
-                        pointT.Y = line.Points[2].Y - 10;
-                        line.Points[3] = pointT;
-
-                        pointT.X = line.Points[2].X - 10;
-                        pointT.Y = line.Points[2].Y + 10;
-                        line.Points[4] = pointT;
-
-                        pointT.X = line.Points[2].X;
-                        pointT.Y = line.Points[2].Y;
-                        line.Points[5] = pointT;
-                    }
+                    line.X2 = point.X + grid.ActualHeight / 2 - 30;
+                    line.Y2 = point.Y + grid.ActualHeight / 2;
 
                     //pathCosts.Remove(line);
                     //tmp.Margin = new System.Windows.Thickness(pointT.X - 10, pointT.Y - 20, 0, 0);
                     //pathCosts.Add(line, tmp);              
                 }
 
-                pathCosts[line].Margin = new System.Windows.Thickness(mdl.X - 10, mdl.Y - 20, 0, 0);
+                pathCosts[line].Margin = new System.Windows.Thickness(mdl.X - 20, mdl.Y - 30, 0, 0);              
             }
         }
 
@@ -254,7 +195,7 @@ namespace Graph
 
             Point point = e.GetPosition(MainRoot);
             Grid grid = createFigure.CreateGrid();
-            connections.Add(grid, new List<Polyline>());
+            connections.Add(grid, new List<ArrowLine>());
             MainRoot.Children.Add(grid);
             Canvas.SetLeft(grid, point.X - 25);
             Canvas.SetTop(grid, point.Y - 25);
@@ -289,41 +230,15 @@ namespace Graph
                 connectionFigures.gridLast = (Grid)sender;
                 connectionFigures.end = point;
 
-                Polyline line = createFigure.CreateLine();
+                ArrowLine line = createFigure.CreateLine();
 
                 Point pOne = new Point();
                 Point pTwo = new Point();
 
-                pOne.X = connectionFigures.start.X;
-                pOne.Y = connectionFigures.start.Y;
-                pTwo.X = connectionFigures.end.X;
-                pTwo.Y = connectionFigures.end.Y;
-
-                line.Points.Add(pOne);
-                line.Points.Add(pTwo);
-
-                if (connectionFigures.hasDirection)
-                {
-                    Point mArrow = new Point();
-                    Point pRarrow = new Point();
-                    Point pLarrow = new Point();
-                    Point сArrow = new Point();
-
-                    mArrow.X = (pOne.X + pTwo.X) / 2;
-                    mArrow.Y = (pOne.Y + pTwo.Y) / 2;
-
-                    pRarrow.X = mArrow.X - 10;
-                    pRarrow.Y = mArrow.Y - 10;
-                    pLarrow.X = mArrow.X - 10;
-                    pLarrow.Y = mArrow.Y + 10;
-                    сArrow.X = mArrow.X;
-                    сArrow.Y = mArrow.Y;
-
-                    line.Points.Add(mArrow);
-                    line.Points.Add(pRarrow);
-                    line.Points.Add(pLarrow);
-                    line.Points.Add(сArrow);
-                }
+                line.X1 = connectionFigures.start.X;
+                line.Y1 = connectionFigures.start.Y;
+                line.X2 = connectionFigures.end.X;
+                line.Y2 = connectionFigures.end.Y;
 
                 if (connectionFigures.gridFirst == connectionFigures.gridLast)
                 {
@@ -331,8 +246,8 @@ namespace Graph
                     return;
                 }
 
-                foreach (Polyline lineStart in connections[connectionFigures.gridFirst])
-                    foreach (Polyline lineEnd in connections[connectionFigures.gridLast])
+                foreach (ArrowLine lineStart in connections[connectionFigures.gridFirst])
+                    foreach (ArrowLine lineEnd in connections[connectionFigures.gridLast])
                         if (lineStart == lineEnd)
                         {
                             connectionFigures.Clear();
@@ -360,13 +275,13 @@ namespace Graph
         {
             if (isDeleteBtnOn == false || isShortestPathBtnOn == true || isConnectBtnOn == true) return;
             if (sender.GetType() == typeof(Grid)) DeleteGrid((Grid)sender);
-            else if (sender.GetType() == typeof(Polyline)) DeleteLine((Polyline)sender);
+            else if (sender.GetType() == typeof(ArrowLine)) DeleteLine((ArrowLine)sender);
             RedrawCanvas();
         }
 
         private void DeleteGrid(Grid curGrid)
         {
-            List<Polyline> lines = new List<Polyline>();
+            List<ArrowLine> lines = new List<ArrowLine>();
             foreach (var grid in connections)
             {
                 if (curGrid == grid.Key)
@@ -379,7 +294,7 @@ namespace Graph
             }
         }
 
-        private void DeleteLine(Polyline curLine)
+        private void DeleteLine(ArrowLine curLine)
         {
             foreach (var lines in connections.Values)
             {
@@ -470,7 +385,7 @@ namespace Graph
         private void AddGridToCanvasFromFile(List<double> positions)
         {
             Grid grid = createFigure.CreateGrid();
-            connections.Add(grid, new List<Polyline>());
+            connections.Add(grid, new List<ArrowLine>());
             MainRoot.Children.Add(grid);
             Canvas.SetLeft(grid, positions[0]);
             Canvas.SetTop(grid, positions[1]);
@@ -496,29 +411,26 @@ namespace Graph
                         Grid grid2 = (Grid)GetEllipseFromIndex(j).Parent;
                         CreateFigure createFigure = new CreateFigure();
 
-                        Polyline line = createFigure.CreateLine();
-                        Point pOne = new();
-                        pOne.X = Canvas.GetLeft(grid1) + 25;
-                        pOne.Y = Canvas.GetTop(grid1) + 25;
-                        Point pTwo = new();
-                        pTwo.X = Canvas.GetLeft(grid2) + 25;
-                        pTwo.Y = Canvas.GetTop(grid2) + 25;
+                        ArrowLine line = createFigure.CreateLine();
+
+                        line.X1 = Canvas.GetLeft(grid1) + 5;
+                        line.Y1 = Canvas.GetTop(grid1) + 25;
+   
+                        line.X2 = Canvas.GetLeft(grid2) - 5;
+                        line.Y2 = Canvas.GetTop(grid2) + 25;
 
                         Point mArrow = new();
-                        mArrow.X = (pOne.X + pTwo.X) / 2;
-                        mArrow.Y = (pOne.Y + pTwo.Y) / 2;
+                        mArrow.X = (line.X1 + line.X2) / 2;
+                        mArrow.X = (line.Y1 + line.Y2) / 2;
 
-                        line.Points.Add(pOne);
-                        line.Points.Add(pTwo);
-
-                        foreach (Polyline lineStart in connections[grid1])
-                            foreach (Polyline lineEnd in connections[grid2])
+                        foreach (ArrowLine lineStart in connections[grid1])
+                            foreach (ArrowLine lineEnd in connections[grid2])
                                 if (lineStart == lineEnd) continue;
 
                         connections[grid1].Add(line);
                         connections[grid2].Add(line);
 
-                        Label pCost = new Label { Margin = new System.Windows.Thickness(mArrow.X - 10, mArrow.Y - 20, 0, 0), Content = adjacencyMatrix[i][j] };
+                        Label pCost = new Label { Margin = new Thickness(mArrow.X - 20, mArrow.Y - 30, 0, 0), Content = adjacencyMatrix[i][j], FontSize = 15, Background = Brushes.White };
                         pathCosts.Add(line, pCost);
 
                         MainRoot.Children.Add(line);
@@ -714,7 +626,7 @@ namespace Graph
 
             foreach (var keyValuePair in connections)
             {
-                foreach (Polyline line in keyValuePair.Value)
+                foreach (ArrowLine line in keyValuePair.Value)
                 {
                     if (!MainRoot.Children.Contains(line))
                     {
@@ -803,38 +715,17 @@ namespace Graph
                 connectionFigures.gridLast = (Grid)sender;
                 connectionFigures.end = point;
 
-                Polyline line = createFigure.CreateLine();
+                ArrowLine line = createFigure.CreateLine();
 
-                Point pOne = new Point();
-                Point pTwo = new Point();
-
-                pOne.X = connectionFigures.start.X - 10;
-                pOne.Y = connectionFigures.start.Y - 10;
-                pTwo.X = connectionFigures.end.X;
-                pTwo.Y = connectionFigures.end.Y;
-
-                line.Points.Add(pOne);
-                line.Points.Add(pTwo);
+                line.X1 = connectionFigures.start.X - 10;
+                line.Y1 = connectionFigures.start.Y - 10;
+                line.X2 = connectionFigures.end.X - 20;
+                line.Y2 = connectionFigures.end.Y;
 
                 Point mArrow = new Point();
-                Point pRarrow = new Point();
-                Point pLarrow = new Point();
-                Point сArrow = new Point();
 
-                mArrow.X = (pOne.X + pTwo.X) / 2;
-                mArrow.Y = (pOne.Y + pTwo.Y) / 2;
-
-                pRarrow.X = mArrow.X - 10;
-                pRarrow.Y = mArrow.Y - 10;
-                pLarrow.X = mArrow.X - 10;
-                pLarrow.Y = mArrow.Y + 10;
-                сArrow.X = mArrow.X;
-                сArrow.Y = mArrow.Y;
-
-                line.Points.Add(mArrow);
-                line.Points.Add(pRarrow);
-                line.Points.Add(pLarrow);
-                line.Points.Add(сArrow);
+                mArrow.X = (line.X1 + line.X2) / 2;
+                mArrow.Y = (line.Y1 + line.Y2) / 2;
 
                 if (connectionFigures.gridFirst == connectionFigures.gridLast)
                 {
@@ -842,8 +733,8 @@ namespace Graph
                     return;
                 }
 
-                foreach (Polyline lineStart in connections[connectionFigures.gridFirst])
-                    foreach (Polyline lineEnd in connections[connectionFigures.gridLast])
+                foreach (ArrowLine lineStart in connections[connectionFigures.gridFirst])
+                    foreach (ArrowLine lineEnd in connections[connectionFigures.gridLast])
                         if (lineStart == lineEnd)
                         {
                             connectionFigures.Clear();
@@ -865,7 +756,7 @@ namespace Graph
                 if (setPathCostWindow.pathCost != 0)
                     AppendDirectionMatrix(firstIndex, secondIndex, setPathCostWindow.pathCost);
 
-                Label pCost = new Label { Margin = new System.Windows.Thickness(mArrow.X - 10, mArrow.Y - 20,0,0), Content = connectionFigures.cost};
+                Label pCost = new Label { Margin = new Thickness(mArrow.X - 20, mArrow.Y - 30,0,0), Content = connectionFigures.cost, FontSize = 15, Background = Brushes.White};
                 pathCosts.Add(line, pCost);
 
                 line.MouseRightButtonDown += Delete;
@@ -998,7 +889,7 @@ namespace Graph
                 StringBuilder stringBuilder1 = new StringBuilder();
                 foreach (int n in tmpInt)
                     stringBuilder1.Append($"{n} ");
-                logger.Add($"Дебаг пути: {stringBuilder1}");
+                //logger.Add($"Дебаг пути: {stringBuilder1}");
 
                 logger.AddRange(tmp);
                 StringBuilder stringBuilder= new StringBuilder();
