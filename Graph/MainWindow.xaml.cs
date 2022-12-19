@@ -48,8 +48,18 @@ namespace Graph
         public MainWindow()
         {
             InitializeComponent();
-            Shape arrow = ArrowLine.DrawLinkArrow(new Point(10,50), new Point(50, 100));
-            MainRoot.Children.Add(arrow);
+            ArrowLine arrowLine = new();
+            arrowLine.Stroke = Brushes.Black;
+            arrowLine.StrokeThickness = 2;
+            arrowLine.X1= 20;
+            arrowLine.Y1= 30;
+            arrowLine.X2= 80;
+            arrowLine.Y2= 100;
+            arrowLine.ArrowLength = 10;
+            arrowLine.ArrowAngle = 45;
+            arrowLine.ArrowEnds = ArrowEnds.End;
+
+            MainRoot.Children.Add(arrowLine);
         }
 
         #region All Buttons Click
