@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -26,9 +30,11 @@ namespace Graph
     public partial class MainWindow : Window
     {
         private CreateFigure createFigure = new CreateFigure();
-        private Dictionary<Grid, List<Line>> connections = new Dictionary<Grid, List<Line>>();
-        private List<List<int>> adjacencyMatrix = new List<List<int>>();
+        private Dictionary<Grid, List<Polyline>> connections = new Dictionary<Grid, List<Polyline>>();
+        private Dictionary<Polyline, Label> pathCosts = new Dictionary<Polyline, Label>();
+        public static List<List<int>> adjacencyMatrix = new List<List<int>>();
         private Point? movePoint;
+        private List<string> logger = new List<string>();
 
         private bool isCreateBtnOn = false;
         private bool isConnectBtnOn = false;
@@ -36,10 +42,14 @@ namespace Graph
         private bool isWidthBtnOn = false;
         private bool isHeightBtnOn = false;
         private bool isShortestPathBtnOn = false;
+        private bool isDirectionConnection = false;
+        private bool isFFBtnOn = false;
 
         public MainWindow()
         {
             InitializeComponent();
+            Shape arrow = ArrowLine.DrawLinkArrow(new Point(10,50), new Point(50, 100));
+            MainRoot.Children.Add(arrow);
         }
 
         #region All Buttons Click
@@ -115,6 +125,8 @@ namespace Graph
             connections.Clear();
             MainRoot.Children.Clear();
             adjacencyMatrix.Clear();
+            pathCosts.Clear();
+            textBlock.Text = string.Empty;
         }
         #endregion
 
@@ -137,21 +149,85 @@ namespace Graph
             Canvas.SetLeft(grid, point.X);
             Canvas.SetTop(grid, point.Y);
 
-            foreach (Line line in connections[grid])
+            foreach (Polyline line in connections[grid])
             {
-                double line1 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.X1, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Y1, 2));
-                double line2 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.X2, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Y2, 2));
+                double line1 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.Points[0].X, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Points[0].Y, 2));
+                double line2 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.Points[1].X, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Points[1].Y, 2));
+
+                Label tmp = pathCosts[line];
+                Point mdl = new Point();
 
                 if (line1 < line2)
                 {
-                    line.X1 = point.X + grid.ActualHeight / 2;
-                    line.Y1 = point.Y + grid.ActualHeight / 2;
+                    Point pointT = new Point();
+                    pointT.X = point.X + grid.ActualHeight / 2;
+                    pointT.Y = point.Y + grid.ActualHeight / 2;
+                    line.Points[0] = pointT;
+
+                    pointT.X = (line.Points[0].X + line.Points[1].X) / 2;
+                    pointT.Y = (line.Points[0].Y + line.Points[1].Y) / 2;
+
+                    mdl.X = pointT.X;
+                    mdl.Y = pointT.Y;
+
+                    if (line.Points.Count > 2)
+                    {
+                        line.Points[2] = pointT;
+
+                        pointT.X = line.Points[2].X - 10;
+                        pointT.Y = line.Points[2].Y - 10;
+                        line.Points[3] = pointT;
+
+                        pointT.X = line.Points[2].X - 10;
+                        pointT.Y = line.Points[2].Y + 10;
+                        line.Points[4] = pointT;
+
+                        pointT.X = line.Points[2].X;
+                        pointT.Y = line.Points[2].Y;
+                        line.Points[5] = pointT;
+                    }
+
+                    //pathCosts.Remove(line);
+                    //tmp.Margin = new System.Windows.Thickness(pointT.X - 10, pointT.Y - 20, 0, 0);
+                    //pathCosts.Add(line, tmp);
+                    //pathCosts[line].Margin = new System.Windows.Thickness(pointT.X - 10, pointT.Y - 20, 0, 0);
                 }
                 else
                 {
-                    line.X2 = point.X + grid.ActualHeight / 2;
-                    line.Y2 = point.Y + grid.ActualHeight / 2;
+                    Point pointT = new Point();
+                    pointT.X = point.X + grid.ActualHeight / 2;
+                    pointT.Y = point.Y + grid.ActualHeight / 2;
+                    line.Points[1] = pointT;
+
+                    pointT.X = (line.Points[0].X + line.Points[1].X) / 2;
+                    pointT.Y = (line.Points[0].Y + line.Points[1].Y) / 2;
+
+                    mdl.X = pointT.X;
+                    mdl.Y = pointT.Y;
+
+                    if (line.Points.Count > 2)
+                    {
+                        line.Points[2] = pointT;
+
+                        pointT.X = line.Points[2].X - 10;
+                        pointT.Y = line.Points[2].Y - 10;
+                        line.Points[3] = pointT;
+
+                        pointT.X = line.Points[2].X - 10;
+                        pointT.Y = line.Points[2].Y + 10;
+                        line.Points[4] = pointT;
+
+                        pointT.X = line.Points[2].X;
+                        pointT.Y = line.Points[2].Y;
+                        line.Points[5] = pointT;
+                    }
+
+                    //pathCosts.Remove(line);
+                    //tmp.Margin = new System.Windows.Thickness(pointT.X - 10, pointT.Y - 20, 0, 0);
+                    //pathCosts.Add(line, tmp);              
                 }
+
+                pathCosts[line].Margin = new System.Windows.Thickness(mdl.X - 10, mdl.Y - 20, 0, 0);
             }
         }
 
@@ -168,7 +244,7 @@ namespace Graph
 
             Point point = e.GetPosition(MainRoot);
             Grid grid = createFigure.CreateGrid();
-            connections.Add(grid, new List<Line>());
+            connections.Add(grid, new List<Polyline>());
             MainRoot.Children.Add(grid);
             Canvas.SetLeft(grid, point.X - 25);
             Canvas.SetTop(grid, point.Y - 25);
@@ -181,6 +257,8 @@ namespace Graph
             grid.MouseLeftButtonUp += FigureMouseUp;
             grid.MouseRightButtonDown += Connection;
             grid.MouseRightButtonDown += FindShortestPath;
+
+            grid.MouseRightButtonDown += DirectionConnection;
         }
 
         private void Connection(object sender, MouseEventArgs args)
@@ -201,12 +279,41 @@ namespace Graph
                 connectionFigures.gridLast = (Grid)sender;
                 connectionFigures.end = point;
 
-                Line line = createFigure.CreateLine();
+                Polyline line = createFigure.CreateLine();
 
-                line.X1 = connectionFigures.start.X;
-                line.Y1 = connectionFigures.start.Y;
-                line.X2 = connectionFigures.end.X;
-                line.Y2 = connectionFigures.end.Y;
+                Point pOne = new Point();
+                Point pTwo = new Point();
+
+                pOne.X = connectionFigures.start.X;
+                pOne.Y = connectionFigures.start.Y;
+                pTwo.X = connectionFigures.end.X;
+                pTwo.Y = connectionFigures.end.Y;
+
+                line.Points.Add(pOne);
+                line.Points.Add(pTwo);
+
+                if (connectionFigures.hasDirection)
+                {
+                    Point mArrow = new Point();
+                    Point pRarrow = new Point();
+                    Point pLarrow = new Point();
+                    Point сArrow = new Point();
+
+                    mArrow.X = (pOne.X + pTwo.X) / 2;
+                    mArrow.Y = (pOne.Y + pTwo.Y) / 2;
+
+                    pRarrow.X = mArrow.X - 10;
+                    pRarrow.Y = mArrow.Y - 10;
+                    pLarrow.X = mArrow.X - 10;
+                    pLarrow.Y = mArrow.Y + 10;
+                    сArrow.X = mArrow.X;
+                    сArrow.Y = mArrow.Y;
+
+                    line.Points.Add(mArrow);
+                    line.Points.Add(pRarrow);
+                    line.Points.Add(pLarrow);
+                    line.Points.Add(сArrow);
+                }
 
                 if (connectionFigures.gridFirst == connectionFigures.gridLast)
                 {
@@ -214,8 +321,8 @@ namespace Graph
                     return;
                 }
 
-                foreach (Line lineStart in connections[connectionFigures.gridFirst])
-                    foreach (Line lineEnd in connections[connectionFigures.gridLast])
+                foreach (Polyline lineStart in connections[connectionFigures.gridFirst])
+                    foreach (Polyline lineEnd in connections[connectionFigures.gridLast])
                         if (lineStart == lineEnd)
                         {
                             connectionFigures.Clear();
@@ -225,7 +332,7 @@ namespace Graph
                 connections[connectionFigures.gridFirst].Add(line);
                 connections[connectionFigures.gridLast].Add(line);
                 MainRoot.Children.Add(line);
-
+              
                 int firstIndex = GetIndexOfGrid(connectionFigures.gridFirst);
                 int secondIndex = GetIndexOfGrid(connectionFigures.gridLast);
 
@@ -243,13 +350,13 @@ namespace Graph
         {
             if (isDeleteBtnOn == false || isShortestPathBtnOn == true || isConnectBtnOn == true) return;
             if (sender.GetType() == typeof(Grid)) DeleteGrid((Grid)sender);
-            else if (sender.GetType() == typeof(Line)) DeleteLine((Line)sender);
+            else if (sender.GetType() == typeof(Polyline)) DeleteLine((Polyline)sender);
             RedrawCanvas();
         }
 
         private void DeleteGrid(Grid curGrid)
         {
-            List<Line> lines = new List<Line>();
+            List<Polyline> lines = new List<Polyline>();
             foreach (var grid in connections)
             {
                 if (curGrid == grid.Key)
@@ -262,7 +369,7 @@ namespace Graph
             }
         }
 
-        private void DeleteLine(Line curLine)
+        private void DeleteLine(Polyline curLine)
         {
             foreach (var lines in connections.Values)
             {
@@ -353,7 +460,7 @@ namespace Graph
         private void AddGridToCanvasFromFile(List<double> positions)
         {
             Grid grid = createFigure.CreateGrid();
-            connections.Add(grid, new List<Line>());
+            connections.Add(grid, new List<Polyline>());
             MainRoot.Children.Add(grid);
             Canvas.SetLeft(grid, positions[0]);
             Canvas.SetTop(grid, positions[1]);
@@ -363,6 +470,7 @@ namespace Graph
             grid.MouseMove += FigureMouseMove;
             grid.MouseLeftButtonUp += FigureMouseUp;
             grid.MouseRightButtonDown += Connection;
+            grid.MouseRightButtonDown += DirectionConnection;
             grid.MouseRightButtonDown += FindShortestPath;
         }
 
@@ -372,23 +480,37 @@ namespace Graph
             {
                 for (int j = 0; j < adjacencyMatrix[i].Count; j++)
                 {
-                    if (adjacencyMatrix[i][j] == 1)
+                    if (adjacencyMatrix[i][j] >= 1)
                     {
                         Grid grid1 = (Grid)GetEllipseFromIndex(i).Parent;
                         Grid grid2 = (Grid)GetEllipseFromIndex(j).Parent;
                         CreateFigure createFigure = new CreateFigure();
-                        Line line = createFigure.CreateLine();
-                        line.X1 = Canvas.GetLeft(grid1) + 25;
-                        line.Y1 = Canvas.GetTop(grid1) + 25;
-                        line.X2 = Canvas.GetLeft(grid2) + 25;
-                        line.Y2 = Canvas.GetTop(grid2) + 25;
 
-                        foreach (Line lineStart in connections[grid1])
-                            foreach (Line lineEnd in connections[grid2])
+                        Polyline line = createFigure.CreateLine();
+                        Point pOne = new();
+                        pOne.X = Canvas.GetLeft(grid1) + 25;
+                        pOne.Y = Canvas.GetTop(grid1) + 25;
+                        Point pTwo = new();
+                        pTwo.X = Canvas.GetLeft(grid2) + 25;
+                        pTwo.Y = Canvas.GetTop(grid2) + 25;
+
+                        Point mArrow = new();
+                        mArrow.X = (pOne.X + pTwo.X) / 2;
+                        mArrow.Y = (pOne.Y + pTwo.Y) / 2;
+
+                        line.Points.Add(pOne);
+                        line.Points.Add(pTwo);
+
+                        foreach (Polyline lineStart in connections[grid1])
+                            foreach (Polyline lineEnd in connections[grid2])
                                 if (lineStart == lineEnd) continue;
 
                         connections[grid1].Add(line);
                         connections[grid2].Add(line);
+
+                        Label pCost = new Label { Margin = new System.Windows.Thickness(mArrow.X - 10, mArrow.Y - 20, 0, 0), Content = adjacencyMatrix[i][j] };
+                        pathCosts.Add(line, pCost);
+
                         MainRoot.Children.Add(line);
                         line.MouseRightButtonDown += Delete;
                     }
@@ -582,11 +704,13 @@ namespace Graph
 
             foreach (var keyValuePair in connections)
             {
-                foreach (Line line in keyValuePair.Value)
+                foreach (Polyline line in keyValuePair.Value)
                 {
                     if (!MainRoot.Children.Contains(line))
                     {
                         MainRoot.Children.Add(line);
+                        if (pathCosts.ContainsKey(line))
+                            MainRoot.Children.Add(pathCosts[line]);
                     }
                 }
                 MainRoot.Children.Add(keyValuePair.Key);
@@ -600,21 +724,13 @@ namespace Graph
             ellipse.Stroke = Brushes.Gray;
         }
 
-        private void HighlightElements(List<int> nodes)
+        private async void HighlightElements(List<int> nodes)
         {
             for (int i = 0; i < nodes.Count; i++)
             {
-                Ellipse ellipse = GetEllipseFromIndex(i);
-                if (nodes[i] == 1)
-                {
-                    ellipse.Fill = Brushes.Gray;
-                }
-                if (nodes[i] == 2)
-                {
-                    ellipse.StrokeThickness = 5;
-                    ellipse.Fill = Brushes.Orange;
-                    ellipse.Stroke = Brushes.Gray;
-                }
+                Ellipse ellipse = GetEllipseFromIndex(nodes[i] - 1);
+                ellipse.Fill = Brushes.Gray;
+                await Task.Delay(500);
             }
         }
 
@@ -629,9 +745,329 @@ namespace Graph
                         Ellipse ellipse = (Ellipse)child;
                         ellipse.StrokeThickness = 0;
                         ellipse.Stroke = Brushes.Gray;
+                        ellipse.Fill = Brushes.Orange;
                     }
                 }
             }
+        }
+        #endregion
+
+
+        private void FFBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            isFFBtnOn = !isFFBtnOn;
+            button.Background = isFFBtnOn == true ? (Brush)(new BrushConverter().ConvertFrom("#FF7373")) :
+                                                    (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
+            if (isFFBtnOn) GetFordFulkerson(0, adjacencyMatrix[0].Count - 1);
+            else
+            {
+                GetBackAllElement();
+                textBlock.Text = string.Empty;
+            }
+        }
+
+        private void dirConnectBtn_Click(object sender, RoutedEventArgs args)
+        {
+            Button button = sender as Button;
+            isDirectionConnection = !isDirectionConnection;
+            button.Background = isDirectionConnection == true ? (Brush)(new BrushConverter().ConvertFrom("#FF7373")) :
+                                                                (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
+        }
+
+        private void DirectionConnection(object sender, MouseEventArgs args)
+        {
+            ConnectionFigures connectionFigures = ConnectionFigures.GetInstance();
+            if (isConnectBtnOn == true || isDeleteBtnOn == true || isShortestPathBtnOn == true || isDirectionConnection == false) return;
+
+            Point point = args.GetPosition(MainRoot);
+
+            if (connectionFigures.start.X == 0 && connectionFigures.start.Y == 0)
+            {
+                connectionFigures.start = point;
+                connectionFigures.gridFirst = (Grid)sender;
+            }
+
+            else if (connectionFigures.end.X == 0 && connectionFigures.end.Y == 0)
+            {
+                connectionFigures.gridLast = (Grid)sender;
+                connectionFigures.end = point;
+
+                Polyline line = createFigure.CreateLine();
+
+                Point pOne = new Point();
+                Point pTwo = new Point();
+
+                pOne.X = connectionFigures.start.X - 10;
+                pOne.Y = connectionFigures.start.Y - 10;
+                pTwo.X = connectionFigures.end.X;
+                pTwo.Y = connectionFigures.end.Y;
+
+                line.Points.Add(pOne);
+                line.Points.Add(pTwo);
+
+                Point mArrow = new Point();
+                Point pRarrow = new Point();
+                Point pLarrow = new Point();
+                Point сArrow = new Point();
+
+                mArrow.X = (pOne.X + pTwo.X) / 2;
+                mArrow.Y = (pOne.Y + pTwo.Y) / 2;
+
+                pRarrow.X = mArrow.X - 10;
+                pRarrow.Y = mArrow.Y - 10;
+                pLarrow.X = mArrow.X - 10;
+                pLarrow.Y = mArrow.Y + 10;
+                сArrow.X = mArrow.X;
+                сArrow.Y = mArrow.Y;
+
+                line.Points.Add(mArrow);
+                line.Points.Add(pRarrow);
+                line.Points.Add(pLarrow);
+                line.Points.Add(сArrow);
+
+                if (connectionFigures.gridFirst == connectionFigures.gridLast)
+                {
+                    connectionFigures.Clear();
+                    return;
+                }
+
+                foreach (Polyline lineStart in connections[connectionFigures.gridFirst])
+                    foreach (Polyline lineEnd in connections[connectionFigures.gridLast])
+                        if (lineStart == lineEnd)
+                        {
+                            connectionFigures.Clear();
+                            return;
+                        }
+
+                connections[connectionFigures.gridFirst].Add(line);
+                connections[connectionFigures.gridLast].Add(line);
+                MainRoot.Children.Add(line);
+
+                int firstIndex  = GetIndexOfGrid(connectionFigures.gridFirst);
+                int secondIndex = GetIndexOfGrid(connectionFigures.gridLast );
+                RedrawCanvas();
+
+                SetPathCostWindow setPathCostWindow = new();
+                setPathCostWindow.ShowDialog();
+                connectionFigures.cost = setPathCostWindow.pathCost;
+
+                if (setPathCostWindow.pathCost != 0)
+                    AppendDirectionMatrix(firstIndex, secondIndex, setPathCostWindow.pathCost);
+
+                Label pCost = new Label { Margin = new System.Windows.Thickness(mArrow.X - 10, mArrow.Y - 20,0,0), Content = connectionFigures.cost};
+                pathCosts.Add(line, pCost);
+
+                line.MouseRightButtonDown += Delete;
+                RedrawCanvas();
+                connectionFigures.Clear();
+            }
+        }
+
+        private static void AppendDirectionMatrix(int firstIndex, int secondIndex, int cost)
+        {
+            adjacencyMatrix[firstIndex][secondIndex] = cost;
+            adjacencyMatrix[secondIndex][firstIndex] = 0;
+        }
+
+        private void AddLoggerContentToCanvas()
+        {
+            textBlock.Inlines.Clear();
+            foreach (var log in logger)
+            {
+                textBlock.Inlines.Add($"{log}");
+                textBlock.Inlines.Add(new LineBreak());
+            }
+        }
+
+        #region FordFulkerson
+        private static int V;
+        private static int[,] GetArrayMatrix()
+        {
+            int c = adjacencyMatrix[0].Count();
+
+            int[,] graph = new int[c, c];
+
+            for (int i = 0; i < c; i++)
+                for (int j = 0; j < c; j++)
+                    graph[i, j] = adjacencyMatrix[i][j];
+            return graph;
+        }
+
+        public async void GetFordFulkerson(int s, int t)
+        {
+            int[,] graph = GetArrayMatrix();
+            V = graph.GetLength(0);
+            int u, v;
+            // Create a residual graph and fill
+            // the residual graph with given
+            // capacities in the original graph as
+            // residual capacities in residual graph
+            // Создайте остаточный график и заполните
+            // остаточный график с заданным
+            // мощности в исходном графике как
+            // остаточные мощности в остаточном графике
+
+            // Residual graph where rGraph[i,j]
+            // indicates residual capacity of
+            // edge from i to j (if there is an
+            // edge. If rGraph[i,j] is 0, then
+            // there is not)
+            // // Остаточный граф, где граф[i,j]
+            // указывает остаточную емкость
+            // ребра от i до j (если есть
+            // ребро. Если график[i,j] равен 0, то
+            // его нет)
+
+            int[,] rGraph = new int[V, V];
+
+            for (u = 0; u < V; u++)
+                for (v = 0; v < V; v++)
+                    rGraph[u, v] = graph[u, v];
+
+            // This array is filled by BFS and to store path
+            // Этот массив заполняется BFS и для хранения пути
+            int[] parent = new int[V];
+
+            int max_flow = 0; // Объявляем максимальный поток, по умолчанию ноль
+
+            // Augment the flow while there is path from source
+            // to sink
+            // Увеличьте поток, пока есть путь от источника
+            // утонуть
+            while (bfs(rGraph, s, t, parent))
+            {
+                // Find minimum residual capacity of the edhes
+                // along the path filled by BFS. Or we can say
+                // find the maximum flow through the path found.
+                // // Найти минимальную остаточную емкость edhes
+                // по пути, заполненному BFS. Или мы можем сказать
+                // найдите максимальный поток по найденному пути.
+                int path_flow = int.MaxValue;
+                for (v = t; v != s; v = parent[v])
+                {
+                    u = parent[v];
+                    path_flow = Math.Min(path_flow, rGraph[u, v]);
+                }
+
+                // update residual capacities of the edges and
+                // reverse edges along the path
+                // обновите остаточные емкости ребер и
+                // переверните ребра вдоль пути
+                List<string> tmp = new();
+                List<int> tmpInt = new();
+                List<int> tmpIntHighlight = new();
+                for (v = t; v != s; v = parent[v])
+                {
+                    u = parent[v];
+                    //tmp.Add($"{u}");
+                    //tmp.Add($"Путь {u + 1}->{v + 1} равен {path_flow} Свободного потока: {rGraph[u, v]}");
+                    rGraph[u, v] -= path_flow;
+                    rGraph[v, u] += path_flow;
+                    tmpInt.Add(v + 1);
+                    tmpIntHighlight.Add(v);
+                    if (u + 1 == 1)
+                    {
+                        tmpInt.Add(u + 1);
+                        tmpIntHighlight.Add(v);
+                    }
+                    tmp.Add($"Путь {u + 1}->{v + 1} ({path_flow + rGraph[u, v]}) Поток равен {path_flow} Свободного потока: {rGraph[u, v]}");
+
+                    List<int> hgltE = new List<int>() {u, v};               
+                }
+                //GetBackAllElement();
+                
+
+                // Add path flow to overall flow
+                // Добавить поток пути к общему потоку
+                tmp.Reverse();
+                tmpInt.Reverse();
+                tmpIntHighlight.Reverse();
+                HighlightElements(tmpInt);
+
+                StringBuilder stringBuilder1 = new StringBuilder();
+                foreach (int n in tmpInt)
+                    stringBuilder1.Append($"{n} ");
+                logger.Add($"Дебаг пути: {stringBuilder1}");
+
+                logger.AddRange(tmp);
+                StringBuilder stringBuilder= new StringBuilder();
+                foreach(int n in tmpInt) 
+                    stringBuilder.Append($"{n}->");
+                stringBuilder.Remove(stringBuilder.Length - 2,2);
+                logger.Add($"Путь {stringBuilder} равен {path_flow}\n");
+                AddLoggerContentToCanvas();
+                await Task.Delay(4000);
+                GetBackAllElement();
+
+                max_flow += path_flow;
+            }
+
+
+            Console.WriteLine(max_flow);
+            // Return the overall flow
+            // Вернуть общий поток
+            logger.Add($"Максимальный поток в пункт {t + 1} равен {max_flow}");
+            AddLoggerContentToCanvas();
+            logger.Clear();
+        }
+
+        private static bool bfs(int[,] rGraph, int s, int t, int[] parent)
+        {
+            // Create a visited array and mark
+            // all vertices as not visited
+            // Создайте посещенный массив и отметьте
+            // все вершины как не посещенные
+            bool[] visited = new bool[V];
+            for (int i = 0; i < V; ++i)
+                visited[i] = false;
+
+            // Create a queue, enqueue source vertex and mark
+            // source vertex as visited
+            // Создайте очередь, поставьте исходную вершину в очередь и отметьте
+            // исходную вершину как посещенную
+            List<int> queue = new List<int>();
+            queue.Add(s);
+            visited[s] = true;
+            parent[s] = -1;
+
+            // Standard BFS Loop
+            // Стандартный цикл BFS
+            while (queue.Count != 0)
+            {
+                int u = queue[0];
+                queue.RemoveAt(0);
+
+                for (int v = 0; v < V; v++)
+                {
+                    if (visited[v] == false
+                        && rGraph[u, v] > 0)
+                    {
+                        // If we find a connection to the sink
+                        // node, then there is no point in BFS
+                        // anymore We just have to set it's parent
+                        // and can return true
+                        // Если мы найдем соединение с приемником
+                        // узла, то в BFS нет смысла
+                        // больше нам просто нужно установить его родителя
+                        // и может возвращать значение true
+                        if (v == t)
+                        {
+                            parent[v] = u;
+                            return true;
+                        }
+                        queue.Add(v);
+                        parent[v] = u;
+                        visited[v] = true;
+                    }
+                }
+            }
+
+            // We didn't reach sink in BFS starting from source,
+            // so return false
+            // Мы не достигли sink в BFS, начиная с исходного кода,
+            // поэтому возвращаем false
+            return false;
         }
         #endregion
     }

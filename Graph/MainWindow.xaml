@@ -23,9 +23,13 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"></ColumnDefinition>
             <ColumnDefinition Width="15*" ></ColumnDefinition>
+            <ColumnDefinition Width="4*" ></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <Canvas Background="#DEF5E5" x:Name="MainRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="11" MouseLeftButtonDown="AddGridToCanvas"></Canvas>
+        <ScrollViewer Grid.Column="2" Grid.RowSpan="11" Background="White" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">                                                               
+            <TextBlock Width="Auto" Height="Auto" x:Name="textBlock" TextAlignment="Left"/>
+        </ScrollViewer>
         <Button Grid.Row="0"
                 x:Name="createBtn" 
                 Content="Create Node" 
@@ -133,6 +137,30 @@
                 Foreground="White" 
                 BorderThickness="0" 
                 Click="clearBtn_Click"/>
+        <Button Grid.Row="9" 
+                x:Name="FFBtn" 
+                Content="Ford Fulkerson" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16" 
+                Foreground="White" 
+                BorderThickness="0" 
+                Click="FFBtn_Click"/>
+        <Button Grid.Row="10" 
+                x:Name="dirConnectBtn" 
+                Content="DirConnection" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16" 
+                Foreground="White" 
+                BorderThickness="0" 
+                Click="dirConnectBtn_Click"/>
     </Grid>
 
 </Window>

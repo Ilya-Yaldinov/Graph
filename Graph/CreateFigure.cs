@@ -49,9 +49,9 @@ namespace Graph
             return grid;
         }
 
-        public Line CreateLine()
+        public Polyline CreateLine()
         {
-            Line line = new Line();
+            Polyline line = new Polyline();
             line.Stroke = (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
             line.StrokeThickness = 5;
             line.StrokeStartLineCap = PenLineCap.Round;

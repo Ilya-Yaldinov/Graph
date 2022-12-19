@@ -8,8 +8,12 @@ namespace Graph
     {
         public Point start;
         public Point end;
+        public Point lArrow;
+        public Point rArrow;
         public Grid? gridFirst;
         public Grid? gridLast;
+        public int   cost;
+        public bool  hasDirection;
 
         private static ConnectionFigures? instance;
 
