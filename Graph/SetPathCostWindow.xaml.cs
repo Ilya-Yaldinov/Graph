@@ -15,9 +15,6 @@ using System.Windows.Shapes;
 
 namespace Graph
 {
-    /// <summary>
-    /// Логика взаимодействия для SetPathCostWindow.xaml
-    /// </summary>
     public partial class SetPathCostWindow : Window
     {
         public int pathCost = 1;
