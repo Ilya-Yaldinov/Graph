@@ -49,15 +49,23 @@ namespace Graph
             return grid;
         }
 
-        public Line CreateLine()
+        public ArrowLine CreateLine()
         {
-            Line line = new Line();
-            line.Stroke = (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
-            line.StrokeThickness = 5;
-            line.StrokeStartLineCap = PenLineCap.Round;
-            line.StrokeEndLineCap = PenLineCap.Round;
+            //Polyline line = new Polyline();
+            //line.Stroke = (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
+            //line.StrokeThickness = 5;
+            //line.StrokeStartLineCap = PenLineCap.Round;
+            //line.StrokeEndLineCap = PenLineCap.Round;
 
-            return line;
+            ArrowLine arrowLine = new();
+            arrowLine.Stroke = Brushes.Black;
+            arrowLine.StrokeThickness = 2;
+            arrowLine.ArrowAngle= 45;
+            arrowLine.ArrowLength = 10;
+            arrowLine.ArrowEnds = ArrowEnds.End;
+            arrowLine.IsArrowClosed= true;
+
+            return arrowLine;
         }
     }
 }
