@@ -30,7 +30,7 @@
         <ScrollViewer Grid.Column="2" Grid.RowSpan="11" Background="White" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">                                                               
             <TextBlock Width="Auto" Height="Auto" x:Name="textBlock" TextAlignment="Left"/>
         </ScrollViewer>
-        <Button Grid.Row="0"
+        <Button Grid.Row="1"
                 x:Name="createBtn" 
                 Content="Create Node" 
                 HorizontalAlignment="Center" 
@@ -42,7 +42,7 @@
                 Foreground="White" 
                 BorderThickness="0"
                 Click="createBtn_Click"/>
-        <Button Grid.Row="1" 
+        <Button Grid.Row="15" 
                 x:Name="connectBtn" 
                 Content="Connect" 
                 HorizontalAlignment="Center" 
@@ -53,7 +53,7 @@
                 FontSize="16" 
                 Foreground="White" 
                 BorderThickness="0"
-                Click="connectBtn_Click"/>
+                Click="connectBtn_Click" Visibility="Hidden"/>
         <Button Grid.Row="2" 
                 x:Name="deleteBtn" 
                 Content="Delete" 
@@ -66,7 +66,7 @@
                 Foreground="White" 
                 BorderThickness="0" 
                 Click="deleteBtn_Click"/>
-        <Button Grid.Row="3" 
+        <Button Grid.Row="12" 
                 x:Name="widthBtn" 
                 Content="Width" 
                 HorizontalAlignment="Center" 
@@ -77,8 +77,8 @@
                 FontSize="16" 
                 Foreground="White" 
                 BorderThickness="0"
-                Click="widthBtn_Click"/>
-        <Button Grid.Row="4" 
+                Click="widthBtn_Click" Visibility="Hidden"/>
+        <Button Grid.Row="11" 
                 x:Name="heightBtn" 
                 Content="Height" 
                 HorizontalAlignment="Center" 
@@ -89,8 +89,8 @@
                 FontSize="16" 
                 Foreground="White" 
                 BorderThickness="0" 
-                Click="heightBtn_Click"/>
-        <Button Grid.Row="5" 
+                Click="heightBtn_Click" Visibility="Hidden"/>
+        <Button Grid.Row="19" 
                 x:Name="shortestPathBtn" 
                 Content="Shortest Path" 
                 HorizontalAlignment="Center" 
@@ -101,8 +101,8 @@
                 FontSize="16" 
                 Foreground="White" 
                 BorderThickness="0" 
-                Click="shortestPathBtn_Click"/>
-        <Button Grid.Row="6" 
+                Click="shortestPathBtn_Click" Visibility="Hidden"/>
+        <Button Grid.Row="3" 
                 x:Name="openFileBtn" 
                 Content="Open File" 
                 HorizontalAlignment="Center" 
@@ -114,7 +114,7 @@
                 Foreground="White" 
                 BorderThickness="0" 
                 Click="openFileBtn_Click" />
-        <Button Grid.Row="7" 
+        <Button Grid.Row="4" 
                 x:Name="saveToFileBtn" 
                 Content="Save To File" 
                 HorizontalAlignment="Center" 
@@ -125,7 +125,7 @@
                 FontSize="16" 
                 Foreground="White" 
                 BorderThickness="0" Click="saveToFileBtn_Click" />
-        <Button Grid.Row="8" 
+        <Button Grid.Row="5" 
                 x:Name="clearBtn" 
                 Content="Clear" 
                 HorizontalAlignment="Center" 
@@ -137,7 +137,7 @@
                 Foreground="White" 
                 BorderThickness="0" 
                 Click="clearBtn_Click"/>
-        <Button Grid.Row="9" 
+        <Button Grid.Row="6" 
                 x:Name="FFBtn" 
                 Content="Ford Fulkerson" 
                 HorizontalAlignment="Center" 
@@ -149,7 +149,7 @@
                 Foreground="White" 
                 BorderThickness="0" 
                 Click="FFBtn_Click"/>
-        <Button Grid.Row="10" 
+        <Button Grid.Row="7" 
                 x:Name="dirConnectBtn" 
                 Content="DirConnection" 
                 HorizontalAlignment="Center" 

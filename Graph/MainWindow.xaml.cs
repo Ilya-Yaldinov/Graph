@@ -413,7 +413,7 @@ namespace Graph
 
                         ArrowLine line = createFigure.CreateLine();
 
-                        line.X1 = Canvas.GetLeft(grid1) + 5;
+                        line.X1 = Canvas.GetLeft(grid1) + 15;
                         line.Y1 = Canvas.GetTop(grid1) + 25;
    
                         line.X2 = Canvas.GetLeft(grid2) - 5;
@@ -421,7 +421,7 @@ namespace Graph
 
                         Point mArrow = new();
                         mArrow.X = (line.X1 + line.X2) / 2;
-                        mArrow.X = (line.Y1 + line.Y2) / 2;
+                        mArrow.Y = (line.Y1 + line.Y2) / 2;
 
                         foreach (ArrowLine lineStart in connections[grid1])
                             foreach (ArrowLine lineEnd in connections[grid2])
@@ -433,7 +433,6 @@ namespace Graph
                         Label pCost = new Label { Margin = new Thickness(mArrow.X - 20, mArrow.Y - 30, 0, 0), Content = adjacencyMatrix[i][j], FontSize = 15, Background = Brushes.White };
                         pathCosts.Add(line, pCost);
 
-                        MainRoot.Children.Add(line);
                         line.MouseRightButtonDown += Delete;
                     }
                 }
@@ -632,7 +631,9 @@ namespace Graph
                     {
                         MainRoot.Children.Add(line);
                         if (pathCosts.ContainsKey(line))
+                        {                            
                             MainRoot.Children.Add(pathCosts[line]);
+                        }                          
                     }
                 }
                 MainRoot.Children.Add(keyValuePair.Key);
@@ -845,6 +846,7 @@ namespace Graph
                 // по пути, заполненному BFS. Или мы можем сказать
                 // найдите максимальный поток по найденному пути.
                 int path_flow = int.MaxValue;
+
                 for (v = t; v != s; v = parent[v])
                 {
                     u = parent[v];
@@ -858,11 +860,13 @@ namespace Graph
                 List<string> tmp = new();
                 List<int> tmpInt = new();
                 List<int> tmpIntHighlight = new();
+
                 for (v = t; v != s; v = parent[v])
                 {
                     u = parent[v];
                     //tmp.Add($"{u}");
                     //tmp.Add($"Путь {u + 1}->{v + 1} равен {path_flow} Свободного потока: {rGraph[u, v]}");
+
                     rGraph[u, v] -= path_flow;
                     rGraph[v, u] += path_flow;
                     tmpInt.Add(v + 1);
@@ -872,9 +876,7 @@ namespace Graph
                         tmpInt.Add(u + 1);
                         tmpIntHighlight.Add(v);
                     }
-                    tmp.Add($"Путь {u + 1}->{v + 1} ({path_flow + rGraph[u, v]}) Поток равен {path_flow} Свободного потока: {rGraph[u, v]}");
-
-                    List<int> hgltE = new List<int>() {u, v};               
+                    tmp.Add($"Путь {u + 1}->{v + 1} Поток равен {path_flow + rGraph[u, v]} Свободного потока: {path_flow + rGraph[u, v]} - {path_flow} = {rGraph[u, v]}");
                 }
                 //GetBackAllElement();
                 
@@ -896,7 +898,7 @@ namespace Graph
                 foreach(int n in tmpInt) 
                     stringBuilder.Append($"{n}->");
                 stringBuilder.Remove(stringBuilder.Length - 2,2);
-                logger.Add($"Путь {stringBuilder} равен {path_flow}\n");
+                logger.Add($"Путь {stringBuilder} Макс поток данного пути равен {path_flow}\n");
                 AddLoggerContentToCanvas();
                 await Task.Delay(4000);
                 GetBackAllElement();
