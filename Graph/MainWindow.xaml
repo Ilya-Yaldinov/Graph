@@ -26,11 +26,17 @@
             <ColumnDefinition Width="4*" ></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Canvas Background="#DEF5E5" x:Name="MainRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="11" MouseLeftButtonDown="AddGridToCanvas"></Canvas>
-        <ScrollViewer Grid.Column="2" Grid.RowSpan="11" Background="White" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">                                                               
-            <TextBlock Width="Auto" Height="Auto" x:Name="textBlock" TextAlignment="Left"/>
+        <Canvas Background="#DEF5E5" x:Name="MainRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="11" MouseLeftButtonDown="AddGridToCanvas">
+        </Canvas>
+        <ScrollViewer Grid.Column="2" Grid.RowSpan="11" 
+                      Background="White"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Auto">
+            <TextBlock Width="Auto" Height="Auto"
+                       x:Name="textBlock"  
+                       TextAlignment="Left"/>
         </ScrollViewer>
-        <Button Grid.Row="1"
+        <Button Grid.Row="0"
                 x:Name="createBtn" 
                 Content="Create Node" 
                 HorizontalAlignment="Center" 

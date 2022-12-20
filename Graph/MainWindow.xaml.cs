@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,14 +12,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Printing;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Threading;
-using System.Xml.Linq;
-using static Graph.MainWindow;
-using Color = System.Windows.Media.Color;
 using Point = System.Windows.Point;
 
 namespace Graph
@@ -29,6 +31,7 @@ namespace Graph
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Propertys
         private CreateFigure createFigure = new CreateFigure();
         private Dictionary<Grid, List<ArrowLine>> connections = new Dictionary<Grid, List<ArrowLine>>();
         private Dictionary<ArrowLine, Label> pathCosts = new Dictionary<ArrowLine, Label>();
@@ -44,6 +47,9 @@ namespace Graph
         private bool isShortestPathBtnOn = false;
         private bool isDirectionConnection = false;
         private bool isFFBtnOn = false;
+
+        #endregion
+
 
         public MainWindow()
         {
@@ -82,7 +88,11 @@ namespace Graph
             button.Background = isWidthBtnOn == true ? (Brush)(new BrushConverter().ConvertFrom("#FF7373")) :
                                                        (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
             if (isWidthBtnOn) WidthTraversal();
-            else GetBackAllElement();
+            else
+            {
+                GetBackAllElement(); 
+                ClearTextBox();
+            }
         }
 
         private void heightBtn_Click(object sender, RoutedEventArgs e)
@@ -92,7 +102,11 @@ namespace Graph
             button.Background = isHeightBtnOn == true ? (Brush)(new BrushConverter().ConvertFrom("#FF7373")) :
                                                         (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
             if (isHeightBtnOn) HeightTraversal();
-            else GetBackAllElement();
+            else
+            {
+                GetBackAllElement(); 
+                ClearTextBox();
+            }
         }
 
         private void shortestPathBtn_Click(object sender, RoutedEventArgs e)
@@ -101,7 +115,11 @@ namespace Graph
             isShortestPathBtnOn = !isShortestPathBtnOn;
             button.Background = isShortestPathBtnOn == true ? (Brush)(new BrushConverter().ConvertFrom("#FF7373")) :
                                                               (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
-            if (!isShortestPathBtnOn) GetBackAllElement();
+            if (!isShortestPathBtnOn)
+            {
+                GetBackAllElement();
+                ClearTextBox();
+            }
         }
 
         private void openFileBtn_Click(object sender, RoutedEventArgs e)
@@ -235,10 +253,10 @@ namespace Graph
                 Point pOne = new Point();
                 Point pTwo = new Point();
 
-                line.X1 = connectionFigures.start.X;
-                line.Y1 = connectionFigures.start.Y;
-                line.X2 = connectionFigures.end.X;
-                line.Y2 = connectionFigures.end.Y;
+                line.X1 = Canvas.GetLeft(connectionFigures.gridFirst) + 25;
+                line.Y1 = Canvas.GetTop(connectionFigures.gridFirst) + 25;
+                line.X2 = Canvas.GetLeft(connectionFigures.gridLast) + 25;
+                line.Y2 = Canvas.GetTop(connectionFigures.gridLast) + 25;
 
                 if (connectionFigures.gridFirst == connectionFigures.gridLast)
                 {
@@ -451,19 +469,26 @@ namespace Graph
                 nodes.Add(0);
             }
             queue.Enqueue(0);
+            logger.Add("Добавили элемент \"1\".");
             while (queue.Count != 0)
             {
                 int node = queue.Dequeue();
+                logger.Add($"Взяли элемент \"{node + 1}\".");
+                logger.Add($"Перешли в элемент \"{node + 1}\".");
                 nodes[node] = 2;
                 for (int i = 0; i < nodes.Count; i++)
                 {
                     if (nodes[i] == 0 && adjacencyMatrix[node][i] == 1)
                     {
                         queue.Enqueue(i);
+                        logger.Add($"Обнаружили элемент \"{i + 1}\".");
+                        logger.Add($"Добавили элемент \"{i + 1}\".");
                         nodes[i] = 1;
                     }
                 }
+                logger.Add($"{GetAllElementOfCollection(queue)}");
                 await Task.Delay(1000);
+                AddLoggerContentToCanvas();
                 HighlightElements(nodes);
             }
         }
@@ -477,20 +502,33 @@ namespace Graph
                 nodes.Add(0);
             }
             stack.Push(0);
+            logger.Add("Добавили элемент \"1\".");
             while (stack.Count != 0)
             {
                 int node = stack.Pop();
-                if (nodes[node] == 2) continue;
+                logger.Add($"Взяли элемент \"{node + 1}\".");
+                if (nodes[node] == 2)
+                {
+                    logger.Add($"Элемент \"{node + 1}\" ранее был посещён.");
+                    logger.Add($"{GetAllElementOfCollection(stack)}");
+                    AddLoggerContentToCanvas(); 
+                    continue;
+                }
+                logger.Add($"Перешли в элемент \"{node + 1}\".");
                 nodes[node] = 2;
                 for (int i = nodes.Count - 1; i >= 0; i--)
                 {
                     if (adjacencyMatrix[node][i] == 1 && nodes[i] != 2)
                     {
                         stack.Push(i);
+                        logger.Add($"Обнаружили элемент \"{i + 1}\".");
+                        logger.Add($"Добавили элемент \"{i + 1}\".");
                         nodes[i] = 1;
                     }
                 }
+                logger.Add($"{GetAllElementOfCollection(stack)}");
                 await Task.Delay(1000);
+                AddLoggerContentToCanvas();
                 HighlightElements(nodes);
             }
         }
@@ -527,37 +565,67 @@ namespace Graph
                     nodes.Add(0);
                 }
                 req = GetIndexOfGrid(pathBetweenGrid.gridLast);
-                queue.Enqueue(GetIndexOfGrid(pathBetweenGrid.gridFirst));
+                logger.Add($"Элемент, откуда идем: {req + 1}");
+                int lastIndex = GetIndexOfGrid(pathBetweenGrid.gridFirst);
+                queue.Enqueue(lastIndex);
+                logger.Add($"Элемент, куда надо прийти: {lastIndex + 1}.");
+                logger.Add($"Добавили элемент \"{lastIndex + 1}\".");
                 while (queue.Count != 0)
                 {
                     int node = queue.Dequeue();
+                    logger.Add($"Взяли элемент \"{node + 1}\".");
                     nodes[node] = 2;
+                    int count = 0;
                     for (int i = 0; i < nodes.Count(); i++)
                     {
                         if (adjacencyMatrix[node][i] == 1 && nodes[i] == 0)
                         {
+                            count++;
+                            logger.Add($"Перешли в элемент \"{node + 1}\".");
                             queue.Enqueue(i);
+                            logger.Add($"Обнаружили элемент \"{i + 1}\".");
                             nodes[i] = 1;
                             edge.begin = node;
+                            logger.Add($"Установили элемент \"{node + 1}\" концом Node.");
                             edge.end = i;
+                            logger.Add($"Установили элемент \"{i + 1}\" началом Node.");
                             edges.Push(edge);
+                            logger.Add($"Добавили Node({edge.ToString()}) в очередь.");
                             if (node == req) break;
                         }
                     }
+                    if(count != 0) logger.Add($"Элемент \"{node + 1}\" нам не подхдит.");
+                    await Task.Delay(1000);
+                    logger.Add($"{GetAllElementOfCollection(queue)}");
+                    AddLoggerContentToCanvas();
                 }
-
+                logger.Add($"");
+                logger.Add($"Путь построен.");
+                logger.Add("Переходим к отрисовке.");
+                logger.Add($"");
                 while (edges.Count != 0)
                 {
                     edge = edges.Pop();
+                    logger.Add($"Взяли Node({edge.ToString()}).");
                     if (edge.end == req)
                     {
+                        logger.Add($"Элемент \"{edge.end + 1}\" равен конечному.");
                         req = edge.begin;
+                        logger.Add($"Устанавливаем элемент \"{edge.begin + 1}\" конечным.");
                         await Task.Delay(1000);
                         HighlightPath(GetEllipseFromIndex(edge.end));
+                        logger.Add($"Отрисовываем элемент \"{edge.end + 1}\"");
                     }
+                    else
+                    {
+                        logger.Add($"Node({edge.ToString()}) нам не подходит.");
+                    }
+                    AddLoggerContentToCanvas();
                 }
                 await Task.Delay(1000);
                 HighlightPath(GetEllipseFromIndex(req));
+                logger.Add($"Отрисовываем элемент \"{req + 1}\"");
+                AddLoggerContentToCanvas();
                 pathBetweenGrid.Clear();
             }
         }
@@ -972,6 +1040,37 @@ namespace Graph
             // поэтому возвращаем false
             return false;
         }
+        #endregion
+
+        #region Action With TextBox
+        private void AddLoggerContentToCanvas()
+        {
+            textBlock.Inlines.Clear();
+            foreach (var log in logger)
+            {
+                textBlock.Inlines.Add($"{log}");
+                textBlock.Inlines.Add(new LineBreak());
+            }
+        }
+
+        private void ClearTextBox()
+        {
+            logger.Clear();
+            textBlock.Inlines.Clear();
+        }
+
+        private string GetAllElementOfCollection(IEnumerable<int> collection)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var elem in collection)
+            {
+                sb.Append($"\"{(int)elem + 1}\";");
+            }
+            return sb.Length > 0 ?
+                $"Состояние очереди: {sb.ToString().Substring(0, sb.Length - 1)}." :
+                "Коллекция пуста.";
+        }
+
         #endregion
     }
 }
