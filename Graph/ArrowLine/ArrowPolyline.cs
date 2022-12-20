@@ -1,16 +1,13 @@
-//----------------------------------------------
-// ArrowPolyline.cs (c) 2007 by Charles Petzold
-//----------------------------------------------
 using System;
-using System.Windows;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Windows;
 
 namespace Graph
 {
-    /// <summary>
-    ///     Draws a series of connected straight lines with
-    ///     optional arrows on the ends.
-    /// </summary>
     public class ArrowPolyline : ArrowLineBase
     {
         /// <summary>
@@ -45,7 +42,7 @@ namespace Graph
         /// </summary>
         protected override Geometry DefiningGeometry
         {
-            get 
+            get
             {
                 // Clear out the PathGeometry.
                 pathgeo.Figures.Clear();

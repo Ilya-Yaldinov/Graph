@@ -1,14 +1,10 @@
-//------------------------------------------
-// ArrowEnds.cs (c) 2007 by Charles Petzold
-//------------------------------------------
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Graph
-{
-    /// <summary>
-    ///     Indicates which end of the line has an arrow.
-    /// </summary>
-    [Flags]
     public enum ArrowEnds
     {
         None = 0,
@@ -16,4 +12,3 @@ namespace Graph
         End = 2,
         Both = 3
     }
-}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,26 +10,22 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Graph
 {
     /// <summary>
-    /// Interaction logic for SetPathCostWindow.xaml
+    /// Логика взаимодействия для SetPathCostWindow.xaml
     /// </summary>
     public partial class SetPathCostWindow : Window
     {
-        public int pathCost = 0;
+        public int pathCost = 1;
         private string getText;
 
         public SetPathCostWindow()
         {
             InitializeComponent();
-        }
-
-        private void AddPathCostBtn_Click(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void SetPathCost_TextChanged(object sender, TextChangedEventArgs e)

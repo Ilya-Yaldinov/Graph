@@ -1,13 +1,13 @@
 using System;
-using System.Windows;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Windows;
 
 namespace Graph
 {
-    /// <summary>
-    ///     Draws a straight line between two points with 
-    ///     optional arrows on the ends.
-    /// </summary>
     public class ArrowLine : ArrowLineBase
     {
         /// <summary>

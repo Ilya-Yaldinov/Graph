@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -51,19 +51,13 @@ namespace Graph
 
         public ArrowLine CreateLine()
         {
-            //Polyline line = new Polyline();
-            //line.Stroke = (Brush)(new BrushConverter().ConvertFrom("#9ED5C5"));
-            //line.StrokeThickness = 5;
-            //line.StrokeStartLineCap = PenLineCap.Round;
-            //line.StrokeEndLineCap = PenLineCap.Round;
-
             ArrowLine arrowLine = new();
             arrowLine.Stroke = Brushes.Black;
             arrowLine.StrokeThickness = 2;
-            arrowLine.ArrowAngle= 45;
+            arrowLine.ArrowAngle = 45;
             arrowLine.ArrowLength = 10;
             arrowLine.ArrowEnds = ArrowEnds.End;
-            arrowLine.IsArrowClosed= true;
+            arrowLine.IsArrowClosed = true;
 
             return arrowLine;
         }

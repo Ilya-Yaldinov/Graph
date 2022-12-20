@@ -1,4 +1,4 @@
-﻿using System.Windows.Controls;
+using System.Windows.Controls;
 using System.Windows.Shapes;
 using Point = System.Windows.Point;
 
@@ -12,8 +12,8 @@ namespace Graph
         public Point rArrow;
         public Grid? gridFirst;
         public Grid? gridLast;
-        public int   cost;
-        public bool  hasDirection;
+        public int cost;
+        public bool hasDirection;
 
         private static ConnectionFigures? instance;
 
