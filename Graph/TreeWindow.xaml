@@ -1,11 +1,11 @@
-<Window x:Class="Graph.MainWindow"
+﻿<Window x:Class="Graph.TreeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Graph"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280">
+        Title="TreeWindow" Height="720" Width="1280">
     <Grid Background="#DEF5E5">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"></RowDefinition>
@@ -26,7 +26,7 @@
             <ColumnDefinition Width="4.5*" ></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Canvas Background="#DEF5E5" x:Name="MainRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="11" MouseLeftButtonDown="AddGridToCanvas">
+        <Canvas Background="#DEF5E5" x:Name="TreeRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="11" MouseLeftButtonDown="AddGridToCanvas">
         </Canvas>
         <ScrollViewer Grid.Column="2" Grid.RowSpan="11" 
                       Background="White"
@@ -35,8 +35,19 @@
             <TextBlock Width="Auto" Height="Auto"
                        x:Name="textBlock"  
                        TextAlignment="Left"/>
-        </ScrollViewer>
-        <Button Grid.Row="0"
+        </ScrollViewer><Button Grid.Row="0"
+                x:Name="starterBtn" 
+                Content="Start" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16"  
+                Foreground="White" 
+                BorderThickness="0"
+                Click="starterBtn_Click"/>
+        <Button Grid.Row="1"
                 x:Name="createBtn" 
                 Content="Create Node" 
                 HorizontalAlignment="Center" 
@@ -48,9 +59,9 @@
                 Foreground="White" 
                 BorderThickness="0"
                 Click="createBtn_Click"/>
-        <Button Grid.Row="1" 
-                x:Name="dirConnectBtn" 
-                Content="Connection" 
+        <Button Grid.Row="2" 
+                x:Name="connectBtn" 
+                Content="Connect" 
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Center" 
                 Width="120" Height="40" 
@@ -58,9 +69,9 @@
                 FontFamily="Yu Gothic UI Semibold" 
                 FontSize="16" 
                 Foreground="White" 
-                BorderThickness="0" 
-                Click="dirConnectBtn_Click"/>
-        <Button Grid.Row="2" 
+                BorderThickness="0"
+                Click="connectBtn_Click"/>
+        <Button Grid.Row="3" 
                 x:Name="deleteBtn" 
                 Content="Delete" 
                 HorizontalAlignment="Center" 
@@ -72,67 +83,8 @@
                 Foreground="White" 
                 BorderThickness="0" 
                 Click="deleteBtn_Click"/>
-        <Button Grid.Row="3" 
-                x:Name="widthBtn" 
-                Content="Width" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center" 
-                Width="120" Height="40" 
-                Background="#9ED5C5" 
-                FontFamily="Yu Gothic UI Semibold" 
-                FontSize="16" 
-                Foreground="White" 
-                BorderThickness="0"
-                Click="widthBtn_Click"/>
+        
         <Button Grid.Row="4" 
-                x:Name="heightBtn" 
-                Content="Height" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center" 
-                Width="120" Height="40" 
-                Background="#9ED5C5" 
-                FontFamily="Yu Gothic UI Semibold" 
-                FontSize="16" 
-                Foreground="White" 
-                BorderThickness="0" 
-                Click="heightBtn_Click"/>
-        <Button Grid.Row="5" 
-                x:Name="shortestPathBtn" 
-                Content="Shortest Path" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center" 
-                Width="120" Height="40" 
-                Background="#9ED5C5" 
-                FontFamily="Yu Gothic UI Semibold" 
-                FontSize="16" 
-                Foreground="White" 
-                BorderThickness="0" 
-                Click="shortestPathBtn_Click"/>
-        <Button Grid.Row="6" 
-                x:Name="FFBtn" 
-                Content="Ford Fulkerson" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center" 
-                Width="120" Height="40" 
-                Background="#9ED5C5" 
-                FontFamily="Yu Gothic UI Semibold" 
-                FontSize="16" 
-                Foreground="White" 
-                BorderThickness="0" 
-                Click="FFBtn_Click"/>
-		<Button Grid.Row="7"
-                x:Name="treeBtn"
-                Content="Prima"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Width="120" Height="40"
-                Background="#9ED5C5"
-                FontFamily="Yu Gothic UI Semibold"
-                FontSize="16"
-                Foreground="White"
-                BorderThickness="0"
-                Click="treeBtn_Click"/>
-        <Button Grid.Row="8" 
                 x:Name="openFileBtn" 
                 Content="Open File" 
                 HorizontalAlignment="Center" 
@@ -143,8 +95,8 @@
                 FontSize="16" 
                 Foreground="White" 
                 BorderThickness="0" 
-                Click="openFileBtn_Click" />
-        <Button Grid.Row="9" 
+                Click="startBtn_Click" />
+        <Button Grid.Row="5" 
                 x:Name="saveToFileBtn" 
                 Content="Save To File" 
                 HorizontalAlignment="Center" 
@@ -155,7 +107,19 @@
                 FontSize="16" 
                 Foreground="White" 
                 BorderThickness="0" Click="saveToFileBtn_Click" />
-        <Button Grid.Row="10" 
+        <Button Grid.Row="6"
+                x:Name="saveToFileOstBtn" 
+                Content="Save To File Ost" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16"  
+                Foreground="White" 
+                BorderThickness="0"
+                Click="saveToFileOstBtn_Click"/>
+        <Button Grid.Row="7" 
                 x:Name="clearBtn" 
                 Content="Clear" 
                 HorizontalAlignment="Center" 
@@ -167,6 +131,29 @@
                 Foreground="White" 
                 BorderThickness="0" 
                 Click="clearBtn_Click"/>
+        <Button Grid.Row="8"
+                x:Name="undoneBtn" 
+                Content="Undone" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16"  
+                Foreground="White" 
+                BorderThickness="0"
+                Click="undoneBtn_Click"/>
+        <Button Grid.Row="8"
+                x:Name="clearLogBtn" 
+                Content="Clear Log" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16"  
+                Foreground="White" 
+                BorderThickness="0"
+                Click="clearLogBtn_Click"/>
     </Grid>
-
 </Window>
