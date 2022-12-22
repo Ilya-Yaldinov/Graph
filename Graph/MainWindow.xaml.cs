@@ -109,14 +109,7 @@ namespace Graph
 
         private void clearBtn_Click(object sender, RoutedEventArgs e)
         {
-            movePoint = null;
-            ConnectionFigures connectionFigures = ConnectionFigures.GetInstance();
-            createFigure = new CreateFigure();
-            connectionFigures.Clear();
-            connections.Clear();
-            MainRoot.Children.Clear();
-            adjacencyMatrix.Clear();
-            textBlock.Text = string.Empty;
+            Clear();
         }
 
         private void dirConnectBtn_Click(object sender, RoutedEventArgs args)
@@ -373,6 +366,7 @@ namespace Graph
             if (result == true)
             {
                 string fileName = openFile.FileName;
+                Clear();
                 InfoFromFileToCanvas(fileName);
                 RedrawCanvas();
             }
@@ -464,6 +458,7 @@ namespace Graph
         {
             Queue<int> queue = new Queue<int>();
             List<int> nodes = new List<int>();
+            List<int> nodesQueue = new List<int>();
             for (int i = 0; i < adjacencyMatrix.Count; i++)
             {
                 nodes.Add(0);
@@ -476,6 +471,7 @@ namespace Graph
                 logger.Add($"Взяли элемент \"{node + 1}\".");
                 logger.Add($"Перешли в элемент \"{node + 1}\".");
                 nodes[node] = 2;
+                nodesQueue.Add(node + 1);
                 for (int i = 0; i < nodes.Count; i++)
                 {
                     if (nodes[i] == 0 && adjacencyMatrix[node][i] != 0)
@@ -487,6 +483,7 @@ namespace Graph
                     }
                 }
                 logger.Add($"{GetAllElementOfCollection(queue)}");
+                logger.Add($"Состояние обхода: {GetAllElementOfTrevalers(nodesQueue)}");
                 await Task.Delay(1000);
                 AddLoggerContentToCanvas();
                 HighlightElements(nodes);
@@ -497,6 +494,7 @@ namespace Graph
         {
             Stack<int> stack = new Stack<int>();
             List<int> nodes = new List<int>();
+            List<int> nodesQueue = new List<int>();
             for (int i = 0; i < adjacencyMatrix.Count; i++)
             {
                 nodes.Add(0);
@@ -514,6 +512,7 @@ namespace Graph
                     AddLoggerContentToCanvas(); 
                     continue;
                 }
+                nodesQueue.Add(node + 1);
                 logger.Add($"Перешли в элемент \"{node + 1}\".");
                 nodes[node] = 2;
                 for (int i = nodes.Count - 1; i >= 0; i--)
@@ -527,6 +526,7 @@ namespace Graph
                     }
                 }
                 logger.Add($"{GetAllElementOfCollection(stack)}");
+                logger.Add($"Состояние обхода: {GetAllElementOfTrevalers(nodesQueue)}");
                 await Task.Delay(1000);
                 AddLoggerContentToCanvas();
                 HighlightElements(nodes);
@@ -721,6 +721,18 @@ namespace Graph
             ellipse.Stroke = Brushes.Gray;
         }
 
+        private void Clear()
+        {
+            movePoint = null;
+            ConnectionFigures connectionFigures = ConnectionFigures.GetInstance();
+            createFigure = new CreateFigure();
+            connectionFigures.Clear();
+            connections.Clear();
+            MainRoot.Children.Clear();
+            adjacencyMatrix.Clear();
+            textBlock.Text = string.Empty;
+        }
+
         private void HighlightElements(List<int> nodes)
         {
             for (int i = 0; i < nodes.Count; i++)
@@ -760,6 +772,7 @@ namespace Graph
                         Ellipse ellipse = (Ellipse)child;
                         ellipse.StrokeThickness = 0;
                         ellipse.Stroke = Brushes.Gray;
+                        ellipse.Fill = Brushes.Orange;
                     }
                 }
             }
@@ -791,8 +804,19 @@ namespace Graph
                 sb.Append($"\"{(int)elem + 1}\";");
             }
             return sb.Length > 0 ?
-                $"Состояние очереди: {sb.ToString().Substring(0, sb.Length - 1)}." :
+                $"Состояние коллекции: {sb.ToString().Substring(0, sb.Length - 1)}." :
                 "Коллекция пуста.";
+        }
+
+        private string GetAllElementOfTrevalers(List<int> nodes)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var elem in nodes)
+            {
+                sb.Append($"\"{(int)elem}\" -> ");
+            }
+
+            return sb.ToString().Substring(0, sb.Length - 3);
         }
 
         #endregion
@@ -873,7 +897,7 @@ namespace Graph
                 stringBuilder.Remove(stringBuilder.Length - 2, 2);
                 logger.Add($"Путь {stringBuilder} Макс поток данного пути равен {path_flow}\n");
                 AddLoggerContentToCanvas();
-                await Task.Delay(1000);
+                await Task.Delay(4000);
                 GetBackAllElement();
 
                 max_flow += path_flow;
