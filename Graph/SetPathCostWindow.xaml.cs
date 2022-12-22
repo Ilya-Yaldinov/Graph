@@ -30,5 +30,21 @@ namespace Graph
             getText = SetPathCost.Text;
             int.TryParse(getText, out pathCost);
         }
+
+        private void ConfrimAddPathCostButton_Click(object sender, RoutedEventArgs e)
+        {    
+        }
+
+        private void SetBothArrowButton_Checked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.setArrowBoth = true;
+            MainWindow.setArrowEnd  = false;
+        }
+
+        private void SetOneArrowButton_Checked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.setArrowEnd  = true;
+            MainWindow.setArrowBoth = false;
+        }
     }
 }

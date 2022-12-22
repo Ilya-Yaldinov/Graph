@@ -32,6 +32,9 @@ namespace Graph
         private bool isShortestPathBtnOn = false;
         private bool isDirectionConnection = false;
         private bool isFFBtnOn = false;
+
+        public static bool setArrowBoth = false;
+        public static bool setArrowEnd  = false;
         #endregion
 
         public MainWindow()
@@ -172,7 +175,7 @@ namespace Graph
 
                 if (line1 < line2)
                 {
-                    line.X1 = point.X + grid.ActualHeight / 2 - 10;
+                    line.X1 = point.X + grid.ActualHeight / 2 + 30;
                     line.Y1 = point.Y + grid.ActualHeight / 2;
                 }
                 else
@@ -233,7 +236,7 @@ namespace Graph
 
                 ArrowLine line = createFigure.CreateLine();
 
-                line.X1 = connectionFigures.start.X - 10;
+                line.X1 = connectionFigures.start.X + 20;
                 line.Y1 = connectionFigures.start.Y - 10;
                 line.X2 = connectionFigures.end.X - 20;
                 line.Y2 = connectionFigures.end.Y;
@@ -259,18 +262,23 @@ namespace Graph
 
                 connections[connectionFigures.gridFirst].Add(line);
                 connections[connectionFigures.gridLast].Add(line);
-                MainRoot.Children.Add(line);
 
                 int firstIndex = GetIndexOfGrid(connectionFigures.gridFirst);
                 int secondIndex = GetIndexOfGrid(connectionFigures.gridLast);
-                RedrawCanvas();
 
                 SetPathCostWindow setPathCostWindow = new();
                 setPathCostWindow.ShowDialog();
                 connectionFigures.cost = setPathCostWindow.pathCost;
 
-                if (setPathCostWindow.pathCost != 0)
+                if (setArrowBoth)
+                    line.ArrowEnds = ArrowEnds.Both;
+                if (setArrowEnd)
+                    line.ArrowEnds = ArrowEnds.End;
+
+                if (setPathCostWindow.pathCost != 0 && setArrowEnd)
                     AppendDirectionMatrix(firstIndex, secondIndex, setPathCostWindow.pathCost);
+                if (setPathCostWindow.pathCost != 0 && setArrowBoth)
+                    AppendAdjacenciesMatrix(firstIndex, secondIndex, setPathCostWindow.pathCost);
 
                 Label pCost = new Label { Margin = new Thickness(mArrow.X - 20, mArrow.Y - 30, 0, 0), Content = connectionFigures.cost, FontSize = 15, Background = Brushes.White };
                 pathCosts.Add(line, pCost);
@@ -645,10 +653,10 @@ namespace Graph
             }
         }
 
-        private void AppendAdjacenciesMatrix(int firstIndex, int secondIndex)
+        private void AppendAdjacenciesMatrix(int firstIndex, int secondIndex, int cost)
         {
-            adjacencyMatrix[firstIndex][secondIndex] = 1;
-            adjacencyMatrix[secondIndex][firstIndex] = 1;
+            adjacencyMatrix[firstIndex][secondIndex] = cost;
+            adjacencyMatrix[secondIndex][firstIndex] = cost;
         }
 
         private static void AppendDirectionMatrix(int firstIndex, int secondIndex, int cost)
@@ -757,7 +765,7 @@ namespace Graph
             {
                 Ellipse ellipse = GetEllipseFromIndex(nodes[i] - 1);
                 ellipse.Fill = Brushes.Gray;
-                await Task.Delay(500);
+                await Task.Delay(1000);
             }
         }
 
@@ -837,6 +845,7 @@ namespace Graph
 
         public async void GetFordFulkerson(int s, int t)
         {
+            Dictionary<ArrowLine, Label> labels = pathCosts;
             int[,] graph = GetArrayMatrix();
             V = graph.GetLength(0);
             int u, v;
@@ -854,6 +863,7 @@ namespace Graph
             while (bfs(rGraph, s, t, parent))
             {
                 int path_flow = int.MaxValue;
+                int itt = 0;
 
                 for (v = t; v != s; v = parent[v])
                 {
@@ -878,7 +888,38 @@ namespace Graph
                         tmpInt.Add(u + 1);
                         tmpIntHighlight.Add(v);
                     }
+
+                    //Grid grid2 = (Grid)GetEllipseFromIndex(j).Parent;
+                    bool exit = false;
+
+                    foreach (var keyValuePair in connections)
+                    {
+                        if (keyValuePair.Key == (Grid)GetEllipseFromIndex(u).Parent)
+                        {
+                            foreach (ArrowLine line in keyValuePair.Value)
+                            {
+                                foreach (var keyValuePairSecond in connections)
+                                {
+                                    if (keyValuePairSecond.Key == (Grid)GetEllipseFromIndex(v).Parent)
+                                    {
+                                        foreach (ArrowLine lineSecond in keyValuePairSecond.Value)
+                                        {
+                                            if (line == lineSecond)
+                                            {
+                                                string tmpStr = labels[line].Content.ToString();
+                                                string cost = tmpStr.Split("/")[0];
+                                                labels[line].Content = $"{cost}/{rGraph[u, v]}";
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     tmp.Add($"Путь {u + 1}->{v + 1} Поток равен {path_flow + rGraph[u, v]} Свободного потока: {path_flow + rGraph[u, v]} - {path_flow} = {rGraph[u, v]}");
+                    //labels[i].Content = $"{path_flow + rGraph[u, v]}/{rGraph[u, v]}";
                 }
 
                 tmp.Reverse();
@@ -897,9 +938,10 @@ namespace Graph
                 stringBuilder.Remove(stringBuilder.Length - 2, 2);
                 logger.Add($"Путь {stringBuilder} Макс поток данного пути равен {path_flow}\n");
                 AddLoggerContentToCanvas();
-                await Task.Delay(4000);
+                await Task.Delay(4500);
                 GetBackAllElement();
 
+                itt++;
                 max_flow += path_flow;
             }
 
@@ -908,6 +950,7 @@ namespace Graph
             logger.Add($"Максимальный поток в пункт {t + 1} равен {max_flow}");
             AddLoggerContentToCanvas();
             logger.Clear();
+            GetBackAllElement();
         }
 
         private static bool bfs(int[,] rGraph, int s, int t, int[] parent)

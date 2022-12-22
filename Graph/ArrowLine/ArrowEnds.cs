@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graph;
+namespace Graph
+{
     public enum ArrowEnds
     {
         None = 0,
@@ -12,3 +13,4 @@ namespace Graph;
         End = 2,
         Both = 3
     }
+}

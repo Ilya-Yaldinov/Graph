@@ -7,11 +7,13 @@
         mc:Ignorable="d"
         Title="SetPathCostWindow" Height="200" Width="200" >
     <Grid>
-        <Label x:Name="EnterPathCost" Content="Введите стоимость" HorizontalAlignment="Center" Margin="0,26,0,0" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="SetPathCost" HorizontalAlignment="Center" Margin="0,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="SetPathCost_TextChanged"/>
+        <Label x:Name="EnterPathCost" Content="Введите стоимость" HorizontalAlignment="Center" Margin="0,7,0,0" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="SetPathCost" HorizontalAlignment="Center" Margin="0,38,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="SetPathCost_TextChanged"/>
 
-        <Button x:Name="ConfrimAddPathCostButton" Content="Добавить" HorizontalAlignment="Center" Margin="0,92,0,0" 
-        VerticalAlignment="Top" Height="30" Width="120" IsCancel="True"/>
+        <Button x:Name="ConfrimAddPathCostButton" Content="Добавить" HorizontalAlignment="Center" 
+        VerticalAlignment="Top" Height="30" Width="120" IsCancel="True" Margin="0,73,0,0" Click="ConfrimAddPathCostButton_Click"/>
+        <RadioButton x:Name="SetBothArrowButton" GroupName="SetArrow" Content="В двух направлениях" HorizontalAlignment="Left" Margin="30,110,0,0" VerticalAlignment="Top" Checked="SetBothArrowButton_Checked"/>
+        <RadioButton x:Name="SetOneArrowButton" GroupName="SetArrow" Content="В одном направлении" HorizontalAlignment="Left" Margin="30,130,0,0" VerticalAlignment="Top" Checked="SetOneArrowButton_Checked"/>
 
     </Grid>
 </Window>
