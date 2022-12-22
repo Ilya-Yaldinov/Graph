@@ -579,7 +579,6 @@ namespace Graph
                 }
 
                 Dijkstra(GetIndexOfGrid(pathBetweenGrid.gridFirst), GetIndexOfGrid(pathBetweenGrid.gridLast));
-                AddLoggerContentToCanvas();
                 pathBetweenGrid.Clear();
             }
         }
@@ -729,16 +728,6 @@ namespace Graph
                         ellipse.Fill = Brushes.Orange;
                     }
                 }
-            }
-        }
-
-        private async void DrawPath(int[] nodes, int prevNode)
-        {
-            for (int i = prevNode - 1; i >= 0; i--)
-            {
-                Ellipse ellipse = GetEllipseFromIndex(nodes[i]);
-                ellipse.Stroke = Brushes.Gray;
-                await Task.Delay(1000);
             }
         }
         #endregion
@@ -949,33 +938,44 @@ namespace Graph
         {
             int size = adjacencyMatrix.Count;
 
+            logger.Add($"Начальный Node: \"{startIndex}\".");
+            logger.Add($"Конечный Node: \"{endIndex}\".");
+
             int[] distance = new int[size]; // минимальное расстояние
             int[] visitedNodes = new int[size]; // посещенные вершины
             int temp, minindex, min;
 
             for (int i = 0; i < size; i++)
             {
-                distance[i] = int.MaxValue;
+                distance[i] = 10000;
                 visitedNodes[i] = 1;
             }
 
             distance[startIndex] = 0;
+            StringBuilder sb = new StringBuilder();
+            distance.ToList().ForEach(x => sb.Append($"{x};"));
+            logger.Add($"Заполнили массив растояний: {sb.ToString().Substring(0, sb.Length - 1)}.");
 
+            sb.Clear();
+            visitedNodes.ToList().ForEach(x => sb.Append($"{x};"));
+            logger.Add($"Заполнили массив посещенных вершин: {sb.ToString().Substring(0, sb.Length - 1)}.\n");
+
+            AddLoggerContentToCanvas();
             do
             {
                 minindex = int.MaxValue;
                 min = int.MaxValue;
                 for (int i = 0; i < size; i++)
-                { // Если вершину ещё не обошли и вес меньше min
+                {
                     if ((visitedNodes[i] == 1) && (distance[i] < min))
-                    { // Переприсваиваем значения
+                    {
+                        logger.Add($"Обнаружили непосещенную вершину: \"{i+1}\".");
                         min = distance[i];
                         minindex = i;
+                        logger.Add($"Установили минимальную дистанцию \"{distance[i]}\" до Node \"{minindex + 1}\".");
                     }
                 }
-                // Добавляем найденный минимальный вес
-                // к текущему весу вершины
-                // и сравниваем с текущим минимальным весом вершины
+
                 if (minindex != int.MaxValue)
                 {
                     for (int i = 0; i < size; i++)
@@ -983,50 +983,66 @@ namespace Graph
                         if (adjacencyMatrix[minindex][i] > 0)
                         {
                             temp = min + adjacencyMatrix[minindex][i];
+                            logger.Add($"Добавляем найденный минимальный путь \"{adjacencyMatrix[minindex][i]}\" к текущему.");
                             if (temp < distance[i])
                             {
                                 distance[i] = temp;
+                                logger.Add($"Устанавливаем новый минимальный путь \"{temp}\" до Node \"{i + 1}\".");
+                                logger.Add($"Т.к. предыдущий минимальный путь \"{temp}\" <= текущему \"{distance[i]}\".");
+                            }
+                            else 
+                            {
+                                logger.Add($"Оставляем предыдущий минимальный путь \"{distance[i]}\" до Node \"{i + 1}\".");
+                                logger.Add($"Т.к. предыдущий минимальный путь \"{distance[i]}\" < текущего \"{temp}\".");
                             }
                         }
                     }
                     visitedNodes[minindex] = 0;
+                    logger.Add($"Указываем, что Node \"{minindex + 1}\" был посещен.\n");
                 }
+                await Task.Delay(500);
+                AddLoggerContentToCanvas();
             } while (minindex < int.MaxValue);
 
-            logger.Add("Закончили все расчеты.");
+            logger.Add($"\nДошли до конечной Node: \"{endIndex + 1}\"");
+            AddLoggerContentToCanvas();
 
-            int[] ver = new int[size]; // массив посещенных вершин
-            ver[0] = endIndex + 1; // начальный элемент - конечная вершина
-            int prevNode = 1; // индекс предыдущей вершины
-            int weight = distance[endIndex]; // вес конечной вершины
+            int[] ver = new int[size]; 
+            ver[0] = endIndex + 1; 
+            int prevNode = 1; 
+            int weight = distance[endIndex];
 
-            while (endIndex != startIndex) // пока не дошли до начальной вершины
+            while (endIndex != startIndex) 
             {
-                for (int i = 0; i < size; i++) // просматриваем все вершины
+                for (int i = 0; i < size; i++)
                 {
-                    if (adjacencyMatrix[i][endIndex] != 0)   // если связь есть
+                    if (adjacencyMatrix[i][endIndex] != 0) 
                     {
-                        temp = weight - adjacencyMatrix[i][endIndex]; // определяем вес пути из предыдущей вершины
-                        if (temp == distance[i]) // если вес совпал с рассчитанным
-                        {                 // значит из этой вершины и был переход
-                            weight = temp; // сохраняем новый вес
-                            endIndex = i;       // сохраняем предыдущую вершину
-                            ver[prevNode] = i + 1; // и записываем ее в массив
+                        temp = weight - adjacencyMatrix[i][endIndex]; 
+                        if (temp == distance[i]) 
+                        {                
+                            weight = temp;
+                            endIndex = i;       
+                            ver[prevNode] = i + 1; 
                             prevNode++;
                         }
                     }
                 }
             }
 
-            DrawPath(ver, prevNode);
-            logger.Add("\nВывод кратчайшего пути\n");
-            StringBuilder sb = new StringBuilder();
+            logger.Add("\nВывод кратчайшего пути:");
+            sb.Clear();
             for (int i = prevNode - 1; i >= 0; i--)
             {
-                sb.Append($"{ver[i] + 1} -> ");
+                await Task.Delay(1000);
+                Ellipse ellipse = GetEllipseFromIndex(ver[i] - 1);
+                ellipse.StrokeThickness = 5;
+                ellipse.Stroke = Brushes.Gray;
+                sb.Append($"{ver[i]} -> ");
+                
             }
             logger.Add(sb.ToString().Substring(0, sb.Length - 3));
-            
+            AddLoggerContentToCanvas();
         }
         #endregion
     }
