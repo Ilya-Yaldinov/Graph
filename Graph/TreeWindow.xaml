@@ -23,7 +23,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"></ColumnDefinition>
             <ColumnDefinition Width="15*" ></ColumnDefinition>
-            <ColumnDefinition Width="4.5*" ></ColumnDefinition>
+            <ColumnDefinition Width="7*" ></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <Canvas Background="#DEF5E5" x:Name="TreeRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="11" MouseLeftButtonDown="AddGridToCanvas">
@@ -155,5 +155,16 @@
                 Foreground="White" 
                 BorderThickness="0"
                 Click="clearLogBtn_Click"/>
+        <Button Grid.Row="9" 
+                Content="Close Window" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Width="120" Height="40" 
+                Background="#9ED5C5" 
+                FontFamily="Yu Gothic UI Semibold" 
+                FontSize="16"  
+                Foreground="White" 
+                BorderThickness="0"
+                IsCancel="True"/>
     </Grid>
 </Window>

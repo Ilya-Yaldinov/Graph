@@ -23,7 +23,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"></ColumnDefinition>
             <ColumnDefinition Width="15*" ></ColumnDefinition>
-            <ColumnDefinition Width="4.5*" ></ColumnDefinition>
+            <ColumnDefinition Width="7*" ></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <Canvas Background="#DEF5E5" x:Name="MainRoot" Grid.Row="0" Grid.Column="1" Grid.RowSpan="11" MouseLeftButtonDown="AddGridToCanvas">
