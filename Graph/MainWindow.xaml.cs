@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -175,13 +176,13 @@ namespace Graph
 
                 if (line1 < line2)
                 {
-                    line.X1 = point.X + grid.ActualHeight / 2 + 30;
-                    line.Y1 = point.Y + grid.ActualHeight / 2;
+                    line.X1 = point.X + grid.ActualHeight / 2 - 20;
+                    line.Y1 = point.Y + grid.ActualHeight / 2 - 20;
                 }
                 else
                 {
-                    line.X2 = point.X + grid.ActualHeight / 2 - 30;
-                    line.Y2 = point.Y + grid.ActualHeight / 2;           
+                    line.X2 = point.X + grid.ActualHeight / 2 - 20;
+                    line.Y2 = point.Y + grid.ActualHeight / 2 - 20;           
                 }
 
                 pathCosts[line].Margin = new System.Windows.Thickness(mdl.X - 20, mdl.Y - 30, 0, 0);
@@ -444,8 +445,22 @@ namespace Graph
                         mArrow.Y = (line.Y1 + line.Y2) / 2;
 
                         foreach (ArrowLine lineStart in connections[grid1])
+                        {
+                            bool isLineFind = false;
                             foreach (ArrowLine lineEnd in connections[grid2])
-                                if (lineStart == lineEnd) continue;
+                            {
+                                if (lineStart == lineEnd)
+                                {
+                                    line.ArrowEnds = ArrowEnds.Both;
+                                    connections[grid1].Remove(lineStart);
+                                    connections[grid2].Remove(lineEnd);
+                                    isLineFind = true;
+                                    break;
+                                }
+                            }
+                            if (isLineFind) break;
+                        }
+                            
 
                         connections[grid1].Add(line);
                         connections[grid2].Add(line);
@@ -563,76 +578,7 @@ namespace Graph
                     return;
                 }
 
-                Queue<int> queue = new Queue<int>();
-                Stack<Edge> edges = new Stack<Edge>();
-                int req;
-                Edge edge;
-                List<int> nodes = new List<int>();
-                for (int i = 0; i < adjacencyMatrix.Count; i++)
-                {
-                    nodes.Add(0);
-                }
-                req = GetIndexOfGrid(pathBetweenGrid.gridLast);
-                logger.Add($"Элемент, откуда идем: {req + 1}");
-                int lastIndex = GetIndexOfGrid(pathBetweenGrid.gridFirst);
-                queue.Enqueue(lastIndex);
-                logger.Add($"Элемент, куда надо прийти: {lastIndex + 1}.");
-                logger.Add($"Добавили элемент \"{lastIndex + 1}\".");
-                while (queue.Count != 0)
-                {
-                    int node = queue.Dequeue();
-                    logger.Add($"Взяли элемент \"{node + 1}\".");
-                    nodes[node] = 2;
-                    int count = 0;
-                    for (int i = 0; i < nodes.Count(); i++)
-                    {
-                        if (adjacencyMatrix[node][i] != 0 && nodes[i] == 0)
-                        {
-                            count++;
-                            logger.Add($"Перешли в элемент \"{node + 1}\".");
-                            queue.Enqueue(i);
-                            logger.Add($"Обнаружили элемент \"{i + 1}\".");
-                            nodes[i] = 1;
-                            edge.begin = node;
-                            logger.Add($"Установили элемент \"{node + 1}\" концом Node.");
-                            edge.end = i;
-                            logger.Add($"Установили элемент \"{i + 1}\" началом Node.");
-                            edges.Push(edge);
-                            logger.Add($"Добавили Node({edge.ToString()}) в очередь.");
-                            if (node == req) break;
-                        }
-                    }
-                    if(count != 0) logger.Add($"Элемент \"{node + 1}\" нам не подхдит.");
-                    await Task.Delay(1000);
-                    logger.Add($"{GetAllElementOfCollection(queue)}");
-                    AddLoggerContentToCanvas();
-                }
-                logger.Add($"");
-                logger.Add($"Путь построен.");
-                logger.Add("Переходим к отрисовке.");
-                logger.Add($"");
-                while (edges.Count != 0)
-                {
-                    edge = edges.Pop();
-                    logger.Add($"Взяли Node({edge.ToString()}).");
-                    if (edge.end == req)
-                    {
-                        logger.Add($"Элемент \"{edge.end + 1}\" равен конечному.");
-                        req = edge.begin;
-                        logger.Add($"Устанавливаем элемент \"{edge.begin + 1}\" конечным.");
-                        await Task.Delay(1000);
-                        HighlightPath(GetEllipseFromIndex(edge.end));
-                        logger.Add($"Отрисовываем элемент \"{edge.end + 1}\"");
-                    }
-                    else
-                    {
-                        logger.Add($"Node({edge.ToString()}) нам не подходит.");
-                    }
-                    AddLoggerContentToCanvas();
-                }
-                await Task.Delay(1000);
-                HighlightPath(GetEllipseFromIndex(req));
-                logger.Add($"Отрисовываем элемент \"{req + 1}\"");
+                Dijkstra(GetIndexOfGrid(pathBetweenGrid.gridFirst), GetIndexOfGrid(pathBetweenGrid.gridLast));
                 AddLoggerContentToCanvas();
                 pathBetweenGrid.Clear();
             }
@@ -783,6 +729,16 @@ namespace Graph
                         ellipse.Fill = Brushes.Orange;
                     }
                 }
+            }
+        }
+
+        private async void DrawPath(int[] nodes, int prevNode)
+        {
+            for (int i = prevNode - 1; i >= 0; i--)
+            {
+                Ellipse ellipse = GetEllipseFromIndex(nodes[i]);
+                ellipse.Stroke = Brushes.Gray;
+                await Task.Delay(1000);
             }
         }
         #endregion
@@ -985,6 +941,92 @@ namespace Graph
                 }
             }
             return false;
+        }
+        #endregion
+
+        #region Dijkstra
+        private async void Dijkstra(int startIndex, int endIndex)
+        {
+            int size = adjacencyMatrix.Count;
+
+            int[] distance = new int[size]; // минимальное расстояние
+            int[] visitedNodes = new int[size]; // посещенные вершины
+            int temp, minindex, min;
+
+            for (int i = 0; i < size; i++)
+            {
+                distance[i] = int.MaxValue;
+                visitedNodes[i] = 1;
+            }
+
+            distance[startIndex] = 0;
+
+            do
+            {
+                minindex = int.MaxValue;
+                min = int.MaxValue;
+                for (int i = 0; i < size; i++)
+                { // Если вершину ещё не обошли и вес меньше min
+                    if ((visitedNodes[i] == 1) && (distance[i] < min))
+                    { // Переприсваиваем значения
+                        min = distance[i];
+                        minindex = i;
+                    }
+                }
+                // Добавляем найденный минимальный вес
+                // к текущему весу вершины
+                // и сравниваем с текущим минимальным весом вершины
+                if (minindex != int.MaxValue)
+                {
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (adjacencyMatrix[minindex][i] > 0)
+                        {
+                            temp = min + adjacencyMatrix[minindex][i];
+                            if (temp < distance[i])
+                            {
+                                distance[i] = temp;
+                            }
+                        }
+                    }
+                    visitedNodes[minindex] = 0;
+                }
+            } while (minindex < int.MaxValue);
+
+            logger.Add("Закончили все расчеты.");
+
+            int[] ver = new int[size]; // массив посещенных вершин
+            ver[0] = endIndex + 1; // начальный элемент - конечная вершина
+            int prevNode = 1; // индекс предыдущей вершины
+            int weight = distance[endIndex]; // вес конечной вершины
+
+            while (endIndex != startIndex) // пока не дошли до начальной вершины
+            {
+                for (int i = 0; i < size; i++) // просматриваем все вершины
+                {
+                    if (adjacencyMatrix[i][endIndex] != 0)   // если связь есть
+                    {
+                        temp = weight - adjacencyMatrix[i][endIndex]; // определяем вес пути из предыдущей вершины
+                        if (temp == distance[i]) // если вес совпал с рассчитанным
+                        {                 // значит из этой вершины и был переход
+                            weight = temp; // сохраняем новый вес
+                            endIndex = i;       // сохраняем предыдущую вершину
+                            ver[prevNode] = i + 1; // и записываем ее в массив
+                            prevNode++;
+                        }
+                    }
+                }
+            }
+
+            DrawPath(ver, prevNode);
+            logger.Add("\nВывод кратчайшего пути\n");
+            StringBuilder sb = new StringBuilder();
+            for (int i = prevNode - 1; i >= 0; i--)
+            {
+                sb.Append($"{ver[i] + 1} -> ");
+            }
+            logger.Add(sb.ToString().Substring(0, sb.Length - 3));
+            
         }
         #endregion
     }
