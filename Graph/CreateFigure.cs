@@ -56,7 +56,6 @@ namespace Graph
             arrowLine.StrokeThickness = 2;
             arrowLine.ArrowAngle = 45;
             arrowLine.ArrowLength = 10;
-            arrowLine.ArrowEnds = ArrowEnds.End;
             arrowLine.IsArrowClosed = true;
 
             return arrowLine;
