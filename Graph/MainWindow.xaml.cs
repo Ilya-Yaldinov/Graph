@@ -140,6 +140,11 @@ namespace Graph
                 textBlock.Text = string.Empty;
             }
         }
+        private void treeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            TreeWindow treeWindow = new TreeWindow();
+            treeWindow.Show();
+        }
         #endregion
 
         #region Actions With Grid
