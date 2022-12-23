@@ -174,17 +174,52 @@ namespace Graph
                 mdl.X = (line.X1 + line.X2) / 2;
                 mdl.Y = (line.Y1 + line.Y2) / 2;
 
+                double xobs = Math.Abs(line.X1 - line.X2);
+                double yobs = Math.Abs(line.Y1 - line.Y2);
+                double r = Math.Sqrt(Math.Pow(xobs, 2) + Math.Pow(yobs, 2));
+                double x = 25 * xobs / r;
+                double y = 25 * yobs / r;
+
                 if (line1 < line2)
                 {
-                    line.X1 = point.X + grid.ActualHeight / 2 - 20;
-                    line.Y1 = point.Y + grid.ActualHeight / 2 - 20;
+                    if(movePoint.Value.Y + 25 <= line.Y1)
+                    {
+                        line.Y1 = point.Y + grid.ActualHeight / 2 - y;
+                    }
+                    else
+                    {
+                        line.Y1 = point.Y + grid.ActualHeight / 2 + y;
+                    }
+
+                    if (movePoint.Value.X + 25 <= line.X1)
+                    {
+                        line.X1 = point.X + grid.ActualHeight / 2 - x;
+                    }
+                    else
+                    {
+                        line.X1 = point.X + grid.ActualHeight / 2 + x;
+                    }
                 }
                 else
                 {
-                    line.X2 = point.X + grid.ActualHeight / 2 - 20;
-                    line.Y2 = point.Y + grid.ActualHeight / 2 - 20;           
-                }
+                    if (movePoint.Value.Y + 25 <= line.Y2)
+                    {
+                        line.Y2 = point.Y + grid.ActualHeight / 2 - y;
+                    }
+                    else
+                    {
+                        line.Y2 = point.Y + grid.ActualHeight / 2 + y;
+                    }
 
+                    if (movePoint.Value.X + 25 <= line.X2)
+                    {
+                        line.X2 = point.X + grid.ActualHeight / 2 - x;
+                    }
+                    else
+                    {
+                        line.X2 = point.X + grid.ActualHeight / 2 + x;
+                    }
+                }
                 pathCosts[line].Margin = new System.Windows.Thickness(mdl.X - 20, mdl.Y - 30, 0, 0);
             }
         }
@@ -622,6 +657,28 @@ namespace Graph
             return -1;
         }
 
+        private  Label GetLabelFromIndex(int node)
+        {
+            Label lable = new Label();
+            int count = 0;
+            foreach (var grid in connections.Keys)
+            {
+                if (count == node)
+                {
+                    foreach (var child in grid.Children)
+                    {
+                        if (child.GetType() == typeof(Label))
+                        {
+                            lable = (Label)child;
+                            return lable;
+                        }
+                    }
+                }
+                count++;
+            }
+            return lable;
+        }
+
         private Ellipse GetEllipseFromIndex(int node)
         {
             Ellipse ellipse = new Ellipse();
@@ -726,6 +783,11 @@ namespace Graph
                         ellipse.StrokeThickness = 0;
                         ellipse.Stroke = Brushes.Gray;
                         ellipse.Fill = Brushes.Orange;
+                    }
+                    if (child.GetType() == typeof(Label))
+                    {
+                        Label label = (Label)child;
+                        label.Content = "";
                     }
                 }
             }
@@ -949,6 +1011,8 @@ namespace Graph
             {
                 distance[i] = 10000;
                 visitedNodes[i] = 1;
+                Label label = GetLabelFromIndex(i);
+                label.Content = 10000;
             }
 
             distance[startIndex] = 0;
@@ -973,6 +1037,8 @@ namespace Graph
                         min = distance[i];
                         minindex = i;
                         logger.Add($"Установили минимальную дистанцию \"{distance[i]}\" до Node \"{minindex + 1}\".");
+                        Label label = GetLabelFromIndex(minindex);
+                        label.Content = min;
                     }
                 }
 
@@ -1000,17 +1066,19 @@ namespace Graph
                     visitedNodes[minindex] = 0;
                     logger.Add($"Указываем, что Node \"{minindex + 1}\" был посещен.\n");
                 }
-                await Task.Delay(500);
+                await Task.Delay(1000);
                 AddLoggerContentToCanvas();
             } while (minindex < int.MaxValue);
 
             logger.Add($"\nДошли до конечной Node: \"{endIndex + 1}\"");
-            AddLoggerContentToCanvas();
 
             int[] ver = new int[size]; 
             ver[0] = endIndex + 1; 
             int prevNode = 1; 
             int weight = distance[endIndex];
+
+            logger.Add($"\nКратчайший путь равен: {distance[endIndex]}.");
+            AddLoggerContentToCanvas();
 
             while (endIndex != startIndex) 
             {

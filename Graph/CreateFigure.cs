@@ -28,6 +28,17 @@ namespace Graph
             return textBlock;
         }
 
+        private Label CreateLable()
+        {
+            Label label = new Label();
+            label.FontSize = 10;
+            label.FontFamily = new FontFamily("Yu Gothic UI Semibold");
+            label.HorizontalAlignment = HorizontalAlignment.Right;
+            label.VerticalAlignment = VerticalAlignment.Bottom;
+
+            return label;
+        }
+
         private Ellipse CreateEllipse()
         {
             Ellipse ellipse = new Ellipse();
@@ -43,8 +54,10 @@ namespace Graph
             Grid grid = new Grid();
             Ellipse ellipse = CreateEllipse();
             TextBlock textBlock = CreateTextBlock();
+            Label label = CreateLable();
             grid.Children.Add(ellipse);
             grid.Children.Add(textBlock);
+            grid.Children.Add(label);
 
             return grid;
         }
