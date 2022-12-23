@@ -174,51 +174,20 @@ namespace Graph
                 mdl.X = (line.X1 + line.X2) / 2;
                 mdl.Y = (line.Y1 + line.Y2) / 2;
 
-                double xobs = Math.Abs(line.X1 - line.X2);
-                double yobs = Math.Abs(line.Y1 - line.Y2);
-                double r = Math.Sqrt(Math.Pow(xobs, 2) + Math.Pow(yobs, 2));
-                double x = 25 * xobs / r;
-                double y = 25 * yobs / r;
+                double distance = Math.Sqrt(Math.Pow(line.X1 - line.X2, 2) + Math.Pow(line.Y1 - line.Y2, 2));
+                double scale = 25 / distance;
+                double x = 25 * Math.Cos(scale * Math.Abs(line.Y1 - line.Y2) / 25);
+                double y = 25 * Math.Sin(scale * Math.Abs(line.X1 - line.X2) / 25);
 
                 if (line1 < line2)
                 {
-                    if(movePoint.Value.Y + 25 <= line.Y1)
-                    {
-                        line.Y1 = point.Y + grid.ActualHeight / 2 - y;
-                    }
-                    else
-                    {
-                        line.Y1 = point.Y + grid.ActualHeight / 2 + y;
-                    }
-
-                    if (movePoint.Value.X + 25 <= line.X1)
-                    {
-                        line.X1 = point.X + grid.ActualHeight / 2 - x;
-                    }
-                    else
-                    {
-                        line.X1 = point.X + grid.ActualHeight / 2 + x;
-                    }
+                    line.X1 = point.X + grid.ActualHeight / 2 - x;
+                    line.Y1 = point.Y + grid.ActualHeight / 2 - y;
                 }
                 else
                 {
-                    if (movePoint.Value.Y + 25 <= line.Y2)
-                    {
-                        line.Y2 = point.Y + grid.ActualHeight / 2 - y;
-                    }
-                    else
-                    {
-                        line.Y2 = point.Y + grid.ActualHeight / 2 + y;
-                    }
-
-                    if (movePoint.Value.X + 25 <= line.X2)
-                    {
-                        line.X2 = point.X + grid.ActualHeight / 2 - x;
-                    }
-                    else
-                    {
-                        line.X2 = point.X + grid.ActualHeight / 2 + x;
-                    }
+                    line.X2 = point.X + grid.ActualHeight / 2 - x;
+                    line.Y2 = point.Y + grid.ActualHeight / 2 - y;
                 }
                 pathCosts[line].Margin = new System.Windows.Thickness(mdl.X - 20, mdl.Y - 30, 0, 0);
             }
@@ -272,10 +241,10 @@ namespace Graph
 
                 ArrowLine line = createFigure.CreateLine();
 
-                line.X1 = connectionFigures.start.X + 20;
-                line.Y1 = connectionFigures.start.Y - 10;
-                line.X2 = connectionFigures.end.X - 20;
-                line.Y2 = connectionFigures.end.Y;
+                line.X1 = Canvas.GetLeft(connectionFigures.gridFirst) + 25;
+                line.Y1 = Canvas.GetTop(connectionFigures.gridFirst) + 25;
+                line.X2 = Canvas.GetLeft(connectionFigures.gridLast) + 25;
+                line.Y2 = Canvas.GetTop(connectionFigures.gridLast) + 25;
 
                 Point mArrow = new Point();
 
