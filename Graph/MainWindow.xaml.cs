@@ -165,30 +165,25 @@ namespace Graph
 
             foreach (ArrowLine line in connections[grid])
             {
-                double line1 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.X1, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Y1, 2));
-                double line2 = Math.Sqrt(Math.Pow(point.X + grid.ActualWidth / 2 - line.X2, 2) + Math.Pow(point.Y + grid.ActualHeight / 2 - line.Y2, 2));
-
                 Label tmp = pathCosts[line];
 
                 Point mdl = new Point();
                 mdl.X = (line.X1 + line.X2) / 2;
                 mdl.Y = (line.Y1 + line.Y2) / 2;
 
-                double distance = Math.Sqrt(Math.Pow(line.X1 - line.X2, 2) + Math.Pow(line.Y1 - line.Y2, 2));
-                double scale = 25 / distance;
-                double x = 25 * Math.Cos(scale * Math.Abs(line.Y1 - line.Y2) / 25);
-                double y = 25 * Math.Sin(scale * Math.Abs(line.X1 - line.X2) / 25);
-
-                if (line1 < line2)
-                {
-                    line.X1 = point.X + grid.ActualHeight / 2 - x;
-                    line.Y1 = point.Y + grid.ActualHeight / 2 - y;
-                }
-                else
-                {
-                    line.X2 = point.X + grid.ActualHeight / 2 - x;
-                    line.Y2 = point.Y + grid.ActualHeight / 2 - y;
-                }
+                double xobs = line.X1 - line.X2;
+                double yobs = line.Y1 - line.Y2;
+                double r = Math.Sqrt(Math.Pow(xobs, 2) + Math.Pow(yobs, 2));
+                double x = 25 * xobs / r;
+                double y = 25 * yobs / r;
+                Grid tempGrid = new Grid();
+                foreach (var pair in connections)
+                        if (pair.Value.Contains(line) && grid != pair.Key)
+                            tempGrid = pair.Key;
+                line.X1 = Canvas.GetLeft(grid) + grid.ActualHeight / 2 - x;
+                line.Y1 = Canvas.GetTop(grid) + grid.ActualWidth / 2  - y;
+                line.X2 = Canvas.GetLeft(tempGrid) + tempGrid.ActualHeight / 2 + x;
+                line.Y2 = Canvas.GetTop(tempGrid) + tempGrid.ActualWidth / 2 + y;
                 pathCosts[line].Margin = new System.Windows.Thickness(mdl.X - 20, mdl.Y - 30, 0, 0);
             }
         }
@@ -240,6 +235,17 @@ namespace Graph
                 connectionFigures.end = point;
 
                 ArrowLine line = createFigure.CreateLine();
+
+                double xobs = Canvas.GetLeft(connectionFigures.gridFirst) - Canvas.GetLeft(connectionFigures.gridLast);
+                double yobs = Canvas.GetTop(connectionFigures.gridFirst) - Canvas.GetTop(connectionFigures.gridLast);
+                double r = Math.Sqrt(Math.Pow(xobs, 2) + Math.Pow(yobs, 2));
+                double x = 25 * xobs / r;
+                double y = 25 * yobs / r;
+
+                line.X1 = Canvas.GetLeft(connectionFigures.gridFirst) + connectionFigures.gridFirst.ActualHeight / 2 - x;
+                line.Y1 = Canvas.GetTop(connectionFigures.gridFirst) + connectionFigures.gridFirst.ActualWidth / 2 - y;
+                line.X2 = Canvas.GetLeft(connectionFigures.gridLast) + connectionFigures.gridLast.ActualHeight / 2 + x;
+                line.Y2 = Canvas.GetTop(connectionFigures.gridLast) + connectionFigures.gridLast.ActualWidth / 2 + y;
 
                 line.X1 = Canvas.GetLeft(connectionFigures.gridFirst) + 25;
                 line.Y1 = Canvas.GetTop(connectionFigures.gridFirst) + 25;
