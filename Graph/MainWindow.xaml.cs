@@ -174,10 +174,11 @@ namespace Graph
                 mdl.X = (line.X1 + line.X2) / 2;
                 mdl.Y = (line.Y1 + line.Y2) / 2;
 
-                double distance = Math.Sqrt(Math.Pow(line.X1 - line.X2, 2) + Math.Pow(line.Y1 - line.Y2, 2));
-                double scale = 25 / distance;
-                double x = 25 * Math.Cos(scale * Math.Abs(line.Y1 - line.Y2) / 25);
-                double y = 25 * Math.Sin(scale * Math.Abs(line.X1 - line.X2) / 25);
+                double xobs = line.X1 - line.X2;
+                double yobs = line.Y1 - line.Y2;
+                double r = Math.Sqrt(Math.Pow(xobs, 2) + Math.Pow(yobs, 2));
+                double x = 25 * xobs / r;
+                double y = 25 * yobs / r;
 
                 if (line1 < line2)
                 {
@@ -186,8 +187,10 @@ namespace Graph
                 }
                 else
                 {
-                    line.X2 = point.X + grid.ActualHeight / 2 - x;
-                    line.Y2 = point.Y + grid.ActualHeight / 2 - y;
+                    line.X2 = point.X + grid.ActualHeight / 2 + x;
+                    line.Y2 = point.Y + grid.ActualHeight / 2 + y;
+                    //line.X1 = line.X2 - xobs + 2*x;
+                    //line.Y1 = line.Y2 - yobs + 2 * y;
                 }
                 pathCosts[line].Margin = new System.Windows.Thickness(mdl.X - 20, mdl.Y - 30, 0, 0);
             }
